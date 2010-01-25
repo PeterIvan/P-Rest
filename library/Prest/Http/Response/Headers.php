@@ -13,6 +13,8 @@ class Prest_Http_Response_Headers
 	public function setResponseCode( $i_code )
 	{
 		$this->_response_code = $i_code;
+
+		return $this;
 	}
 
 	public function set( array $i_headers )
@@ -23,6 +25,8 @@ class Prest_Http_Response_Headers
 
 			$this->add($header['name'], $header['value'], $replace);
 		}
+
+		return $this;
 	}
 
 	public function add( $i_header_name, $i_value, $i_replace = false )
@@ -55,6 +59,8 @@ class Prest_Http_Response_Headers
 	public function clearAll()
 	{
 		$this->_headers = array();
+
+		return $this;
 	}
 
 	########################
@@ -63,11 +69,13 @@ class Prest_Http_Response_Headers
 	public function setContentType( $i_content_type, $i_charset = 'utf-8' )
 	{
 		// TODO
+
+		return $this;
 	}
 
 	public function send()
 	{
-		if ( !headers_sent() and !empty($this->_headers) )
+		if ( !headers_sent() )
 		{
 			header("HTTP/1.1 {$this->_response_code}");
 

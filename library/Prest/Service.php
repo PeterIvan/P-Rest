@@ -134,7 +134,7 @@ class Prest_Service
 		$this->_setupRouter();
 
 		$this->_request = new Prest_Http_Request();
-		$this->_response = new Prest_Http_Response();
+		$this->_response = new Prest_Http_Response( array('service' => $this) );
 	}
 
 	protected function _setupRouter()
@@ -177,9 +177,7 @@ class Prest_Service
 			$this->_resource = new $resource($config);
 		}
 		else
-		{
-			die("Resource $resource doesnt exists."); // TODO: better handling
-		}
+			$this->_response->clientError(404);
 	}
 
 	protected function _setupAction()
