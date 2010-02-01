@@ -106,7 +106,12 @@ class Prest_Resource
 				$file_name = $item->getFilename();
 
 				if ( $item->isFile() and strpos($file_name, '.phtml') !== false )
-					$media_types[] = str_replace('_', '/', substr($file_name, 0, -6));
+				{
+					$media_type = str_replace(array('index-', 'identity-'), '', substr($file_name, 0, -6));
+					$media_type = str_replace('_', '/', $media_type);
+
+					$media_types[] = $media_type;
+				}
 			}
 
 			if ( !empty($media_types) )
@@ -151,7 +156,7 @@ class Prest_Resource
 
 		if ( !$selected_media_type )
 		{
-			// TODO:
+			echo 'media type not selected.';// TODO:
 		}
 
 		return $selected_media_type;
@@ -190,6 +195,8 @@ class Prest_Resource
 
 		if ( $i_media_type )
 		{
+
+
 			$file_name = str_replace('/', '_', $i_media_type) . '.phtml';
 			$template = "{$this->_directory}/representations/$file_name";
 

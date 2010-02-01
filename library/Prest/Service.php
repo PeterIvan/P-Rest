@@ -3,6 +3,9 @@
 class Prest_Service
 {
 	protected $_config = array();
+	protected $_params = array();
+
+	protected $_resource_directories = array();
 
 	protected $_url = null;
 	protected $_router = null;
@@ -31,6 +34,13 @@ class Prest_Service
 			$this->_supported_languages = (array)$i_config['supported_languages'];
 
 		$this->_setup();
+	}
+
+	public function setParam( $i_param, $i_value )
+	{
+		$this->_params[$i_param] = $i_value;
+
+		return $this;
 	}
 
 	public function getUrl()
@@ -67,6 +77,14 @@ class Prest_Service
 
 	public function getSupportedLanguages() { return $this->_supported_languages; }
 
+	public function addResourceDirectory( $i_directory )
+	{
+		$resolved_directory = realpath($i_directory);
+
+		if ( $resolved_directory and !in_array($resolved_directory, $this->_resource_directories) )
+			$this->_resource_directories[] = $resolved_directory;
+	}
+
 	public function setAuthAdapter( Zend_Auth_Adapter_Interface $i_adapter )
 	{
 		$this->_auth_adapter = $i_adapter;
@@ -97,7 +115,7 @@ class Prest_Service
 
 				$this->_response->setBody($representation);
 
-				$this->_response->sendResponse();
+				$this->_response->send();
 			}
 			catch ( Exception $e )
 			{
@@ -145,9 +163,6 @@ class Prest_Service
 
 			$this->_router = new Prest_Router($config);
 		}
-
-		if ( $this->_config['routes'] )
-			$this->_router->setRoutes($this->_config['routes']);
 	}
 
 	protected function _prepareDispatch()
@@ -161,7 +176,7 @@ class Prest_Service
 		$matched_route = $this->_router->getMatchedRoute();
 		$resource = $matched_route['resource'];
 
-		$directory = realpath("resources/$resource");
+		$directory = $this->_findResourceDirectory($resource);
 		$file = "$directory/$resource.php";
 
 		if ( is_dir($directory) and is_file($file) )
@@ -198,6 +213,24 @@ class Prest_Service
 		return (bool)$this->_resource->validate($this->_action);
 
 		return true;
+	}
+
+	protected function _findResourceDirectory( $i_resource )
+	{
+		$directory = null;
+
+		foreach ( $this->_resource_directories as $resource_directory )
+		{
+			$potentional_directory = "$resource_directory/$i_resource";
+
+			if ( is_dir($potentional_directory) )
+			{
+				$directory = $potentional_directory;
+				break;
+			}
+		}
+
+		return $directory;
 	}
 }
 

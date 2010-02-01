@@ -101,8 +101,7 @@ class Prest_Http_Response
 
 		$method = "code$i_code";
 
-		$this->_client_error->$method($i_args);
-
+		$this->_client_error->$method($i_params);
 		exit;
 	}
 

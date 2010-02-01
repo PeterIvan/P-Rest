@@ -18,6 +18,8 @@ class Prest_Router
 	public function setRoutes( array $i_routes )
 	{
 		$this->_routes = $i_routes;
+
+		return $this;
 	}
 
 	public function getMatchedRoute()
@@ -37,9 +39,14 @@ class Prest_Router
 
 		foreach ( $route_map as $route_index => $routes )
 		{
-			$route_params = $routes['params'];
+			$route_params = array();
 
-			unset($routes['params']);
+			if ( isset($routes['params']) )
+			{
+				$route_params = $routes['params'];
+
+				unset($routes['params']);
+			}
 
 			foreach ( $routes as $route_type => $route )
 			{

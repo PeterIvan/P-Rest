@@ -18,7 +18,7 @@ class Prest_Http_Request_Url
 	{
 		// nicked from Zend Framework (http://framework.zend.com/), Zend_Controller_Request_Http class
 
-		return (( $_SERVER['HTTPS'] == 'on') ? self::SCHEME_HTTPS : self::SCHEME_HTTP);
+		return ((isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') ? self::SCHEME_HTTPS : self::SCHEME_HTTP);
 	}
 
 	public function getHost()
