@@ -23,6 +23,11 @@ class Prest_Representation
 	public function getMediaType() { return $this->_media_type; }
 	public function getLanguage() { return $this->_language; }
 
+	public function setTemplate( $i_template )
+	{
+		return $this;
+	}
+
 	public function render()
 	{
 		ob_start();

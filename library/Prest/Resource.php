@@ -139,6 +139,9 @@ class Prest_Resource
 
 	protected function _selectBestMediaType()
 	{
+		if ( !$this->_media_types )
+			die('No media types are supported by this resource.');
+
 		$supported = $this->_media_types;
 		$requested = $this->_request->getHeaders()->getAccept();
 		$default = $this->_service->getDefaultMediaType();
@@ -183,7 +186,7 @@ class Prest_Resource
 		{
 			// TODO:
 
-			$this->_service->clientError(406);
+
 		}
 
 		return $selected_language;
@@ -192,12 +195,11 @@ class Prest_Resource
 	protected function _selectRepresentationTemplate( $i_media_type )
 	{
 		$selected_template = null;
+		$route = $this->_service->getRouter()->getMatchedRoute();
 
 		if ( $i_media_type )
 		{
-
-
-			$file_name = str_replace('/', '_', $i_media_type) . '.phtml';
+			$file_name = "{$route['type']}-" . str_replace('/', '_', $i_media_type) . '.phtml';
 			$template = "{$this->_directory}/representations/$file_name";
 
 			if ( is_file($template) )
