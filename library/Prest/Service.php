@@ -177,7 +177,8 @@ class Prest_Service
 		$resource = $matched_route['resource'];
 
 		$directory = $this->_findResourceDirectory($resource);
-		$file = "$directory/$resource.php";
+		$class = basename($resource);
+		$file = "$directory/$class.php";
 
 		if ( is_dir($directory) and is_file($file) )
 		{
@@ -189,7 +190,7 @@ class Prest_Service
 				'directory' => $directory
 			);
 
-			$this->_resource = new $resource($config);
+			$this->_resource = new $class($config);
 		}
 		else
 			$this->_response->clientError(404);
