@@ -2,10 +2,7 @@
 
 class Prest_Http_Response_ClientError extends Prest_Http_Response_Abstract
 {
-	public function code401()
-	{
 
-	}
 
 	public function code402()
 	{

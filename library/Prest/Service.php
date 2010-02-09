@@ -17,13 +17,8 @@ class Prest_Service
 	protected $_action = null;
 
 	protected $_auth_adapter = null;
-	protected $_challenge_generator = null;
+	protected $_auth_challenge_generator = null;
 	protected $_supported_languages = array();
-
-	protected $_ok_response = null;
-	protected $_redirect_response = null;
-	protected $_client_error_response = null;
-	protected $_server_error_response = null;
 
 	public function __construct( array $i_config = null )
 	{
@@ -43,9 +38,19 @@ class Prest_Service
 		return $this;
 	}
 
-	public function getUrl()
+	public function getParam( $i_param )
 	{
-		return $this->_url;
+		if ( isset($this->_params[$i_param]) )
+			return $this->_params[$i_param];
+
+		return null;
+	}
+
+	public function getBaseUrl()
+	{
+		$request_url = $this->_request->getUrl();
+
+		return $request_url->getScheme() . '://' . $request_url->getHost() . $request_url->getBasePath();;
 	}
 
 	public function getRouter()
@@ -57,7 +62,7 @@ class Prest_Service
 	public function getResponse() { return $this->_response; }
 
 	public function getAuthAdapter() { return $this->_auth_adapter; }
-	public function getChallengeGenerator() { return $this->_challenge_generator; }
+	public function getAuthChallengeGenerator() { return $this->_auth_challenge_generator; }
 
 	public function getDefaultMediaType()
 	{
@@ -92,9 +97,9 @@ class Prest_Service
 		return $this;
 	}
 
-	public function setChallengeGenerator( Prest_ChallengeGenerator_Interface $i_generator )
+	public function setAuthChallengeGenerator( Prest_Auth_ChallengeGenerator_Interface $i_generator )
 	{
-		$this->_challenge_generator = $i_generator;
+		$this->_auth_challenge_generator = $i_generator;
 
 		return $this;
 	}
@@ -109,9 +114,7 @@ class Prest_Service
 			{
 				$action = $this->_action;
 
-				$this->_resource->$action();
-
-				$representation = $this->_resource->getRepresentation();
+				$representation = $this->_resource->$action();
 
 				$this->_response->setBody($representation);
 
@@ -126,23 +129,28 @@ class Prest_Service
 			die('request is invalid');
 	}
 
-	public function success( $i_code, $i_body )
+	public function authenticate()
 	{
-	}
+		if ( $this->_auth_adapter )
+		{
+			$auth = Zend_Auth::getInstance();
 
-	public function redirect( $i_code, $i_body )
-	{
+			$auth_result = $auth->authenticate($this->_auth_adapter);
 
-	}
+			if ( !$auth_result->isValid() )
+			{
+				if ( $this->_auth_challenge_generator )
+				{
+					$challenge = $this->_auth_challenge_generator->generate();
 
-	public function clientError( $i_code )
-	{
-		$client_error = "code$i_code";
+					$this->_response->code401($challenge);
+				}
+			}
+		}
+		else
+			die('auth adapter not defined.'); //TODO: throw
 
-	}
-
-	public function serverError()
-	{
+		return $this;
 	}
 
 	protected function _setup()
@@ -212,8 +220,6 @@ class Prest_Service
 	protected function _validateRequest()
 	{
 		return (bool)$this->_resource->validate($this->_action);
-
-		return true;
 	}
 
 	protected function _findResourceDirectory( $i_resource )

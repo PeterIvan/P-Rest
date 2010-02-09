@@ -17,6 +17,8 @@ class Prest_Resource
 	protected $_media_type = null;
 	protected $_language = null;
 
+	protected $_authorized_personnel_only = false;
+
 	public function __construct( array $i_config )
 	{
 		# set properties ###############################################
@@ -80,6 +82,11 @@ class Prest_Resource
 
 	public function validate( $i_action )
 	{
+		if ( $this->_authorized_personnel_only )
+		{
+			$this->_service->authenticate();
+		}
+
 		return true;
 	}
 
@@ -142,13 +149,12 @@ class Prest_Resource
 		if ( !$this->_media_types )
 			die('No media types are supported by this resource.');
 
-		$supported = $this->_media_types;
 		$requested = $this->_request->getHeaders()->getAccept();
 		$default = $this->_service->getDefaultMediaType();
 
 		$selected_media_type = null;
 
-		foreach ( $supported as $media_type )
+		foreach ( $this->_media_types as $media_type )
 		{
 			if ( in_array($media_type, $requested) )
 			{
@@ -185,8 +191,6 @@ class Prest_Resource
 		if ( !$selected_language )
 		{
 			// TODO:
-
-
 		}
 
 		return $selected_language;

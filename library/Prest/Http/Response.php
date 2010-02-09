@@ -13,6 +13,10 @@ class Prest_Http_Response
 	protected $_client_error = null;
 	protected $_server_error = null;
 
+####################################################################################################
+# public
+####################################################################################################
+
 	public function __construct( array $i_config = array() )
 	{
 		if ( isset($i_config['service']) )
@@ -22,6 +26,20 @@ class Prest_Http_Response
 	}
 
 	public function getHeaders() { return $this->_headers; }
+
+	public function setValues( array $i_response_values )
+	{
+		$this->clearAll();
+
+		if ( isset($i_response_values['response_code']) )
+			$this->_headers->setResponseCode($i_response_values['response_code']);
+
+		if ( isset($i_response_values['headers']) )
+			$this->_headers->set($i_response_values['headers']);
+
+		if ( isset($i_response_values['body']) )
+			$this->_body = $i_response_values['body'];
+	}
 
 	public function setResponseCode( $i_code )
 	{
@@ -93,7 +111,7 @@ class Prest_Http_Response
 		{
 			$config = array
 			(
-				'service' => $this->_service,
+				'service' => $this->_service
 			);
 
 			$this->_client_error = new Prest_Http_Response_ClientError($config);
@@ -110,6 +128,62 @@ class Prest_Http_Response
 		$args = func_get_args();
 		unset($args[0]);
 	}
+
+	public function clearAll()
+	{
+		$this->_headers->clearAll();
+		$this->_body = null;
+	}
+
+	################################################################################################
+	# 10x, Informational ###########################################################################
+
+	################################################################################################
+	# 20x, OK ######################################################################################
+
+	################################################################################################
+	# 30x, Redirection #############################################################################
+
+	################################################################################################
+	# 40x, Client Error ############################################################################
+
+	public function code401( array $i_params )
+	{
+		$auth_header = array
+		(
+			'qop="auth"',
+			'stale="' . (isset($i_params['stale']) ? 'true' : 'false') . '"',
+			'realm="Proxia Academy"',
+			'algorithm="Whirlpool"',
+			'nonce="' . $i_params['challenge_token'] . '"',
+			'salt="' . Academy_User::SERVER_SALT . '"',
+			'timestamp="' . $i_params['created_on'] . '"',
+			'opaque="' . $i_params['request_id'] . '"'
+		);
+
+		$this->setValues
+		(
+			array
+			(
+				'response_code' => 401,
+				'headers' => array
+				(
+					array('name' => 'WWW-Authenticate', 'value' => 'PDA ' . implode(',', $auth_header))
+				)
+			)
+		);
+
+		$this->send();
+
+		exit;
+	}
+
+	################################################################################################
+	# 50x, Server Error ############################################################################
+
+####################################################################################################
+# protected
+####################################################################################################
 
 	protected function _setup()
 	{

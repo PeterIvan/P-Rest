@@ -58,6 +58,7 @@ class Prest_Http_Response_Headers
 
 	public function clearAll()
 	{
+		$this->_response_code = 200;
 		$this->_headers = array();
 
 		return $this;

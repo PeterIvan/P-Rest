@@ -6,6 +6,7 @@ class Prest_Http_Request_Headers
 
 	protected $_accept = null;
 	protected $_accept_language = null;
+	protected $_authorization = null;
 
 	public function __construct()
 	{
@@ -94,6 +95,19 @@ class Prest_Http_Request_Headers
 		}
 
 		return $this->_accept_language;
+	}
+
+	public function getAuthorization()
+	{
+		if ( !$this->_authorization )
+		{
+			$all_headers = $this->getAllheaders();
+
+			if ( isset($all_headers['Authorization']) )
+				$this->_authorization = $all_headers['Authorization'];
+		}
+
+		return $this->_authorization;
 	}
 }
 
