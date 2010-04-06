@@ -178,6 +178,36 @@ class Prest_Http_Response
 		exit;
 	}
 
+	public function code403( array $i_params = array() )
+	{
+		$this->setValues
+		(
+			array
+			(
+				'response_code' => 403
+			)
+		);
+
+		$this->send();
+
+		exit;
+	}
+
+	public function code404( array $i_params = array() )
+	{
+		$this->setValues
+		(
+			array
+			(
+				'response_code' => 404
+			)
+		);
+
+		$this->send();
+
+		exit;
+	}
+
 	################################################################################################
 	# 50x, Server Error ############################################################################
 

@@ -145,6 +145,8 @@ class Prest_Service
 
 					$this->_response->code401($challenge);
 				}
+				else
+					die('Auth challenge generator is not defined.');
 			}
 		}
 		else

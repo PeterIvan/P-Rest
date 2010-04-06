@@ -57,10 +57,17 @@ class Prest_Router
 					$params = array();
 
 					foreach ( $route_params as $i => $p )
-						$params[$p] = $matched_params[$i + 1];
+						$params[$p] = $matched_params[$i + 1][0];
 
 					if ( $route_type == 'identity' )
-						$params['identity'] = end($matched_params);
+					{
+						$identity = end($matched_params);
+
+						if ( is_array($identity) )
+							$params['identity'] = $identity[0];
+						else
+							$params['identity'] = $identity;
+					}
 
 					$matched_route = array
 					(
@@ -84,7 +91,6 @@ class Prest_Router
 		foreach ( $this->_routes as $route_index => $route )
 		{
 			$map_entry = array();
-
 
 			$list_route = null;
 

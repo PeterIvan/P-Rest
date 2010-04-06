@@ -90,15 +90,26 @@ class Prest_Resource
 		return true;
 	}
 
+	public function authorize()
+	{
+		return true;
+	}
+
 	protected function _setup()
 	{
-		$this->_setupMediaTypes();
-		$this->_setupRepresentation();
+		$request = $this->_service->getRequest();
+
+		if ( $request->isGet() )
+		{
+			$this->_setupMediaTypes();
+			$this->_setupRepresentation();
+		}
 	}
 
 	protected function _setupMediaTypes()
 	{
-		$directory = $this->_directory . '/representations';
+		$route = $this->_service->getRouter()->getMatchedRoute();
+		$directory = "{$this->_directory}/representations/{$route['type']}";
 
 		if ( is_dir($directory) )
 		{
@@ -114,8 +125,7 @@ class Prest_Resource
 
 				if ( $item->isFile() and strpos($file_name, '.phtml') !== false )
 				{
-					$media_type = str_replace(array('index-', 'identity-'), '', substr($file_name, 0, -6));
-					$media_type = str_replace('_', '/', $media_type);
+					$media_type = str_replace('_', '/', substr($file_name, 0, -6));
 
 					$media_types[] = $media_type;
 				}
@@ -203,8 +213,8 @@ class Prest_Resource
 
 		if ( $i_media_type )
 		{
-			$file_name = "{$route['type']}-" . str_replace('/', '_', $i_media_type) . '.phtml';
-			$template = "{$this->_directory}/representations/$file_name";
+			$file_name = str_replace('/', '_', $i_media_type) . '.phtml';
+			$template = "{$this->_directory}/representations/{$route['type']}/$file_name";
 
 			if ( is_file($template) )
 				$selected_template = $template;
