@@ -17,7 +17,7 @@ class Prest_Resource
 	protected $_media_type = null;
 	protected $_language = null;
 
-	protected $_authorized_personnel_only = false;
+	protected $_security = null;
 
 	public function __construct( array $i_config )
 	{
@@ -79,6 +79,8 @@ class Prest_Resource
 	public function identityOptions()
 	{
 	}
+
+	public function getSecurityConfig()	{ return $this->_security; }
 
 	public function validate( $i_action )
 	{

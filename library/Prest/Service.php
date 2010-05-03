@@ -221,6 +221,8 @@ class Prest_Service
 
 	protected function _validateRequest()
 	{
+		//$resource_validator = new
+
 		return (bool)$this->_resource->validate($this->_action);
 	}
 
