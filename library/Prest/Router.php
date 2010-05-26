@@ -22,20 +22,20 @@ class Prest_Router
 		return $this;
 	}
 
-	public function getMatchedRoute()
+	public function getMatchedRoute( Prest_Request_Http_Url $i_url )
 	{
-		if ( !$this->_matched_route )
-			$this->_matched_route = $this->_matchRoute();
+		$path_info = ltrim($i_url->getPathInfo(), '/');
 
-		return $this->_matched_route;
+		$matched_route = $this->_matchRoute($path_info);
+
+		return $matched_route;
 	}
 
-	protected function _matchRoute()
+	protected function _matchRoute( $i_path_info )
 	{
-		$matched_route = null;
-		$route_map = $this->_createRouteMap();
+		$path_info = $i_path_info;
 
-		$path_info = ltrim($this->_service->getRequest()->getUrl()->getPathInfo(), '/');
+		$route_map = $this->_createRouteMap();
 
 		foreach ( $route_map as $route_index => $routes )
 		{

@@ -10,6 +10,8 @@ class Prest_Service
 	protected $_url = null;
 	protected $_router = null;
 
+	protected $_dispatcher = null;
+
 	protected $_request = null;
 	protected $_response = null;
 
@@ -56,6 +58,11 @@ class Prest_Service
 	public function getRouter()
 	{
 		return $this->_router;
+	}
+
+	public function getDispatcher()
+	{
+		return $this->_dispatcher;
 	}
 
 	public function getRequest() { return $this->_request; }
@@ -106,27 +113,29 @@ class Prest_Service
 
 	public function dispatch()
 	{
-		$this->_prepareDispatch();
+		$request = new Prest_Request();
 
-		if ( $this->_validateRequest() )
+		$response = $this->_dispatcher->dispatch($request);
+
+		$response->send();
+	}
+
+	public function getResourceDirectory( $i_resource_name )
+	{
+		$directory = null;
+
+		foreach ( $this->_resource_directories as $resource_directory )
 		{
-			try
+			$potentional_directory = "$resource_directory/$i_resource_name";
+
+			if ( is_dir($potentional_directory) )
 			{
-				$action = $this->_action;
-
-				$representation = $this->_resource->$action();
-
-				$this->_response->setBody($representation);
-
-				$this->_response->send();
-			}
-			catch ( Exception $e )
-			{
-				die($e->getMessage());
+				$directory = $potentional_directory;
+				break;
 			}
 		}
-		else
-			die('request is invalid');
+
+		return $directory;
 	}
 
 	public function authenticate()
@@ -155,24 +164,32 @@ class Prest_Service
 		return $this;
 	}
 
+################################################################################
+# protected
+################################################################################
+
 	protected function _setup()
 	{
-		$this->_url = new Prest_Service_Url();
+		//$this->_url = new Prest_Service_Url();
 
-		$this->_setupRouter();
+		$this->_router = $this->_setupRouter();
+		$this->_dispatcher = $this->_setupDispatcher();
 
-		$this->_request = new Prest_Http_Request();
 		$this->_response = new Prest_Http_Response( array('service' => $this) );
 	}
 
 	protected function _setupRouter()
 	{
-		if ( !$this->_router )
-		{
-			$config = array( 'service' => $this );
+		$router_params = array( 'service' => $this );
 
-			$this->_router = new Prest_Router($config);
-		}
+		return new Prest_Router($router_params);
+	}
+
+	protected function _setupDispatcher()
+	{
+		$dispatcher_params = array('service' => $this, 'router' => $this->_router);
+
+		return new Prest_Dispatcher($dispatcher_params);
 	}
 
 	protected function _prepareDispatch()
@@ -185,25 +202,6 @@ class Prest_Service
 	{
 		$matched_route = $this->_router->getMatchedRoute();
 		$resource = $matched_route['resource'];
-
-		$directory = $this->_findResourceDirectory($resource);
-		$class = basename($resource);
-		$file = "$directory/$class.php";
-
-		if ( is_dir($directory) and is_file($file) )
-		{
-			require_once($file);
-
-			$config = array
-			(
-				'service' => $this,
-				'directory' => $directory
-			);
-
-			$this->_resource = new $class($config);
-		}
-		else
-			$this->_response->clientError(404);
 	}
 
 	protected function _setupAction()
@@ -226,23 +224,5 @@ class Prest_Service
 		return (bool)$this->_resource->validate($this->_action);
 	}
 
-	protected function _findResourceDirectory( $i_resource )
-	{
-		$directory = null;
-
-		foreach ( $this->_resource_directories as $resource_directory )
-		{
-			$potentional_directory = "$resource_directory/$i_resource";
-
-			if ( is_dir($potentional_directory) )
-			{
-				$directory = $potentional_directory;
-				break;
-			}
-		}
-
-		return $directory;
-	}
 }
-
 ?>

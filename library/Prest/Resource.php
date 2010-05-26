@@ -3,13 +3,12 @@
 class Prest_Resource
 {
 	protected $_service = null;
-
 	protected $_request = null;
-	protected $_response = null;
-
-	protected $_params = null;
 
 	protected $_directory = null;
+	protected $_action = null;
+
+	protected $_params = null;
 
 	protected $_media_types = null;
 	protected $_representation = null;
@@ -19,25 +18,37 @@ class Prest_Resource
 
 	protected $_security = null;
 
-	public function __construct( array $i_config )
+################################################################################
+# public
+################################################################################
+
+	public function __construct( array $i_params )
 	{
-		# set properties ###############################################
+		# set properties #######################################################
 
-		$this->_service = $i_config['service'];
-		$this->_request = $this->_service->getRequest();
-		$this->_response = $this->_service->getResponse();
+		$this->_service = $i_params['service'];
+		$this->_request = $i_params['request'];
 
-		$this->_directory = $i_config['directory'];
+		$this->_directory = $i_params['directory'];
+		$this->_action = $i_params['action'];
 
 		$this->_setup();
+	}
 
-		# run init method if present ###################################
+	public function isActionSupported( $i_type = null, $i_method = null )
+	{
+		if ( $i_type and $i_method )
+			$method_name = $i_type . ucfirst($i_method);
+		else
+			$method_name = $this->_action;
 
-		if ( method_exists($this, 'init') )
-			$this->init();
+		return method_exists($this, $method_name);
 	}
 
 	public function getDirectory() { return $this->_directory; }
+
+	############################################################################
+	# params ###################################################################
 
 	public function getParam( $i_param )
 	{
@@ -68,6 +79,19 @@ class Prest_Resource
 		return $this->_params;
 	}
 
+	############################################################################
+	# headers ##################################################################
+
+	public function getAllHeaders()
+	{
+	}
+
+	public function getHeader( $i_header )
+	{
+	}
+
+	############################################################################
+
 	public function getMediaTypes() { return $this->_media_types; }
 
 	public function getRepresentation() { return $this->_representation; }
@@ -92,20 +116,32 @@ class Prest_Resource
 		return true;
 	}
 
-	public function authorize()
+	############################################################################
+	# execution ################################################################
+
+	public function execute( $i_action = null )
 	{
-		return true;
+		$action = $this->_action;
+
+		if ( $i_action )
+			$action = $i_action;
 	}
+
+################################################################################
+# protected
+################################################################################
 
 	protected function _setup()
 	{
-		$request = $this->_service->getRequest();
+		/*$request = $this->_service->getRequest();
 
 		if ( $request->isGet() )
 		{
 			$this->_setupMediaTypes();
 			$this->_setupRepresentation();
 		}
+
+		$this->validate();*/
 	}
 
 	protected function _setupMediaTypes()
@@ -155,6 +191,21 @@ class Prest_Resource
 
 		$this->_representation = new Prest_Representation($config);
 	}
+
+	############################################################################
+	# validation ###############################################################
+
+	protected function _authenticate()
+	{
+		return true;
+	}
+
+	protected function _authorize()
+	{
+		return true;
+	}
+
+	############################################################################
 
 	protected function _selectBestMediaType()
 	{
