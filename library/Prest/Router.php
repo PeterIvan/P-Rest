@@ -37,6 +37,8 @@ class Prest_Router
 
 		$route_map = $this->_createRouteMap();
 
+		$matched_route = null;
+
 		foreach ( $route_map as $route_index => $routes )
 		{
 			$route_params = array();

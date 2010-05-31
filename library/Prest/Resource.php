@@ -31,16 +31,7 @@ class Prest_Resource
 		$this->_action = $i_params['action'];
 
 		$this->_setup();
-	}
-
-	public function isActionSupported( $i_type = null, $i_method = null )
-	{
-		if ( $i_type and $i_method )
-			$method_name = $i_type . ucfirst($i_method);
-		else
-			$method_name = $this->_action;
-
-		return method_exists($this, $method_name);
+		$this->_validate();
 	}
 
 	public function getDirectory() { return $this->_directory; }
@@ -78,29 +69,10 @@ class Prest_Resource
 	}
 
 	############################################################################
-	# headers ##################################################################
-
-	public function getAllHeaders()
-	{
-	}
-
-	public function getHeader( $i_header )
-	{
-		return $this->_request->getHeaders()->get($i_header);
-	}
-
-	############################################################################
 
 	public function getMediaTypes() { return $this->_media_types; }
 
 	public function getRepresentation() { return $this->_representation; }
-
-	public function validate( $i_action )
-	{
-
-
-		return true;
-	}
 
 	############################################################################
 	# execution ################################################################
@@ -109,20 +81,10 @@ class Prest_Resource
 	{
 		$response = null;
 
-		$action = $this->_action;
+		$action = $i_action ? $i_action : $this->_action;
 
-		if ( $i_action )
-			$action = $i_action;
-
-		$validation_result = $this->validate($action);
-
-		if ( $validation_result === true )
-		{
-			$response = $this->$action();
-		}
-		else
-			$response = $validation_result;
-
+		$response = $this->$action();
+				
 		return $response;
 	}
 
@@ -136,17 +98,7 @@ class Prest_Resource
 	protected function _setup()
 	{
 		$this->_setupMediaTypes();
-		$this->_setupRepresentation();
-
-		/*$request = $this->_service->getRequest();
-
-		if ( $request->isGet() )
-		{
-
-			$this->_setupRepresentation();
-		}
-
-		$this->validate();*/
+		//$this->_setupRepresentation();
 	}
 
 	protected function _setupMediaTypes()
@@ -173,8 +125,7 @@ class Prest_Resource
 				}
 			}
 
-			if ( !empty($media_types) )
-				$this->_media_types = $media_types;
+			$this->_media_types = $media_types;
 		}
 	}
 
@@ -193,12 +144,64 @@ class Prest_Resource
 	############################################################################
 	# validation ###############################################################
 
+	protected function _validate()
+	{
+		$this->_checkAction();
+		$this->_checkMediaType();
+		$this->_checkLanguage();
+	}
+
+	protected function _checkAction()
+	{
+		if ( !method_exists($this, $this->_action) )
+			throw new Prest_Exception(null, Prest_Response::NOT_FOUND);
+	}
+
 	protected function _checkMediaType()
 	{
+		$is_media_type_supported = false;
+
+		$requested_media_types = $this->_request->getHeaders()->getAccept();
+
+		foreach ( $requested_media_types as $requested_mt )
+		{
+			if ( strpos($requested_mt, '*') !== 'false' )
+			{
+				$pattern = str_replace('*', '.*', $requested_mt);
+				$pattern = str_replace('/', '\/', $pattern);
+				$pattern = "/^$pattern\$/u";
+
+				foreach ( $this->_media_types as $supported_mt )
+				{
+					if ( preg_match($pattern, $supported_mt) === 1 )
+					{
+						$is_media_type_supported = true;
+						break 2;
+					}
+				}
+			}
+			elseif ( in_array($requested_mt, $this->_media_types) )
+			{
+				$is_media_type_supported = true;
+				
+				break;
+			}
+		}
+
+		if ( !$is_media_type_supported )
+			throw new Prest_Exception(null, Prest_Response::UNSUPPORTED_MEDIA_TYPE);
 	}
 
 	protected function _checkLanguage()
 	{
+		$is_language_supported = false;
+
+		$requested_languages = $this->_request->getHeaders()->getAcceptLanguage();
+
+		foreach ( $requested_languages as $requested_l )
+		{
+			
+		}
 	}
 
 	protected function _authenticate()

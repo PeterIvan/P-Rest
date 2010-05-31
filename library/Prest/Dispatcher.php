@@ -17,24 +17,12 @@ class Prest_Dispatcher
 
 	public function dispatch( Prest_Request $i_request, array $i_params = null )
 	{
-		$response = new Prest_Response();
-
-		
 		if ( $i_request->isValid() )
 		{
 			$resource = $this->_prepareResource($i_request);
 
-			if ( $resource !== null )
-			{
-				$response = $resource->execute();
-			}
-			else
-			{
-				$response->setResponseCode(Prest_Response::NOT_FOUND);
-			}
+			return $resource->execute();
 		}
-
-		return $response;
 	}
 
 ################################################################################
@@ -46,6 +34,9 @@ class Prest_Dispatcher
 		$resource = null;
 
 		$matched_route = $this->_router->getMatchedRoute($i_request->getUrl());
+
+		if ( !$matched_route )
+			throw new Prest_Exception(null, Prest_Response::NOT_FOUND);
 
 		$resource_name = $matched_route['resource'];
 
@@ -69,11 +60,10 @@ class Prest_Dispatcher
 
 			$resource = new $class($config);
 
-			if ( !$resource->isActionSupported() )
-				$resource = null;
+			return $resource;
 		}
-
-		return $resource;
+		else
+			throw new Prest_Exception(null, Prest_Response::NOT_FOUND);
 	}
 }
 

@@ -31,6 +31,8 @@ class Prest_Representation
 	public function getMediaType() { return $this->_media_type; }
 	public function getLanguage() { return $this->_language; }
 
+	public function isFile() { return $this->_is_file; }
+
 	public function setIsFile( $i_bool )
 	{
 		$this->_is_file = (bool)$i_bool;

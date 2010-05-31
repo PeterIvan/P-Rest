@@ -7,6 +7,7 @@ class Prest_Response
 	const CLIENT_ERROR = 400;
 	const NOT_FOUND = 404;
 	const METHOD_NOT_ALLOWED = 405;
+	const UNSUPPORTED_MEDIA_TYPE = 415;
 
 	const SERVER_ERROR = 500;
 

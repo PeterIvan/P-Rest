@@ -2,10 +2,11 @@
 
 class Prest_Request_Headers
 {
+	protected $_raw_headers = array();
 	protected $_all_headers = null;
 
-	protected $_accept = null;
-	protected $_accept_language = null;
+	protected $_accept = array();
+	protected $_accept_language = array();
 	protected $_authorization = null;
 
 	public function __construct()
