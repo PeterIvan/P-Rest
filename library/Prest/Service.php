@@ -12,15 +12,13 @@ class Prest_Service
 
 	protected $_dispatcher = null;
 
-	protected $_request = null;
-	protected $_response = null;
-
-	protected $_resource = null;
-	protected $_action = null;
-
 	protected $_auth_adapter = null;
 	protected $_auth_challenge_generator = null;
 	protected $_supported_languages = array();
+
+################################################################################
+# public
+################################################################################
 
 	public function __construct( array $i_config = null )
 	{
@@ -58,6 +56,11 @@ class Prest_Service
 	public function getRouter()
 	{
 		return $this->_router;
+	}
+
+	public function getSupportedMethods()
+	{
+		return array ('get', 'put', 'delete', 'post', 'head', 'options');
 	}
 
 	public function getDispatcher()
@@ -113,11 +116,43 @@ class Prest_Service
 
 	public function dispatch()
 	{
-		$request = new Prest_Request();
+		$response = null;
 
-		$response = $this->_dispatcher->dispatch($request);
+		try
+		{
+			$request = new Prest_Request(array('service' => $this));
 
-		$response->send();
+			$response = $this->_dispatcher->dispatch($request);
+
+			$response->send();
+		}
+		catch ( Prest_Exception $e )
+		{
+			$response = new Prest_Response();
+
+			$response->setResponseCode($e->getCode());
+			$response->setHeaders($e->getHeaders());
+
+			$message = $e->getMessage();
+
+			if ( !empty($message) )
+				$response->setBody($message);
+
+			$response->send();
+		}
+		catch ( Exception $e )
+		{
+			$response = new Prest_Response();
+
+			$response->setResponseCode(Prest_Response::SERVER_ERROR);
+
+			$message = $e->getMessage();
+
+			if ( $message )
+				$response->setBody($message);
+
+			$response->send();
+		}
 	}
 
 	public function getResourceDirectory( $i_resource_name )

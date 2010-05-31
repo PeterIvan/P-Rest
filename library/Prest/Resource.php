@@ -8,15 +8,12 @@ class Prest_Resource
 	protected $_directory = null;
 	protected $_action = null;
 
+	protected $_response = null;
+
 	protected $_params = null;
 
 	protected $_media_types = null;
 	protected $_representation = null;
-
-	protected $_media_type = null;
-	protected $_language = null;
-
-	protected $_security = null;
 
 ################################################################################
 # public
@@ -30,6 +27,7 @@ class Prest_Resource
 		$this->_request = $i_params['request'];
 
 		$this->_directory = $i_params['directory'];
+		$this->_action_type = $i_params['action_type'];
 		$this->_action = $i_params['action'];
 
 		$this->_setup();
@@ -88,6 +86,7 @@ class Prest_Resource
 
 	public function getHeader( $i_header )
 	{
+		return $this->_request->getHeaders()->get($i_header);
 	}
 
 	############################################################################
@@ -96,22 +95,9 @@ class Prest_Resource
 
 	public function getRepresentation() { return $this->_representation; }
 
-	public function indexOptions()
-	{
-	}
-
-	public function identityOptions()
-	{
-	}
-
-	public function getSecurityConfig()	{ return $this->_security; }
-
 	public function validate( $i_action )
 	{
-		if ( $this->_authorized_personnel_only )
-		{
-			$this->_service->authenticate();
-		}
+
 
 		return true;
 	}
@@ -121,23 +107,42 @@ class Prest_Resource
 
 	public function execute( $i_action = null )
 	{
+		$response = null;
+
 		$action = $this->_action;
 
 		if ( $i_action )
 			$action = $i_action;
+
+		$validation_result = $this->validate($action);
+
+		if ( $validation_result === true )
+		{
+			$response = $this->$action();
+		}
+		else
+			$response = $validation_result;
+
+		return $response;
 	}
 
 ################################################################################
 # protected
 ################################################################################
 
+	############################################################################
+	# setup ####################################################################
+
 	protected function _setup()
 	{
+		$this->_setupMediaTypes();
+		$this->_setupRepresentation();
+
 		/*$request = $this->_service->getRequest();
 
 		if ( $request->isGet() )
 		{
-			$this->_setupMediaTypes();
+
 			$this->_setupRepresentation();
 		}
 
@@ -146,8 +151,7 @@ class Prest_Resource
 
 	protected function _setupMediaTypes()
 	{
-		$route = $this->_service->getRouter()->getMatchedRoute();
-		$directory = "{$this->_directory}/representations/{$route['type']}";
+		$directory = "{$this->_directory}/representations/{$this->_action_type}";
 
 		if ( is_dir($directory) )
 		{
@@ -176,24 +180,26 @@ class Prest_Resource
 
 	protected function _setupRepresentation()
 	{
-		$media_type = $this->_selectBestMediaType();
-		$language = $this->_selectBestLanguage();
-		$template = $this->_selectRepresentationTemplate($media_type);
-
-		$config = array
+		$params = array
 		(
 			'service' => $this->_service,
-			'resource' => $this,
-			'media_type' => $media_type,
-			'language' => $language,
-			'template' => $template
+			'request' => $this->_request,
+			'resource' => $this
 		);
 
-		$this->_representation = new Prest_Representation($config);
+		$this->_representation = new Prest_Representation($params);
 	}
 
 	############################################################################
 	# validation ###############################################################
+
+	protected function _checkMediaType()
+	{
+	}
+
+	protected function _checkLanguage()
+	{
+	}
 
 	protected function _authenticate()
 	{

@@ -5,6 +5,10 @@ class Prest_Dispatcher
 	protected $_service = null;
 	protected $_router = null;
 
+################################################################################
+# public
+################################################################################
+
 	public function __construct( array $i_params )
 	{
 		$this->_service = $i_params['service'];
@@ -15,34 +19,19 @@ class Prest_Dispatcher
 	{
 		$response = new Prest_Response();
 
-		try
+		
+		if ( $i_request->isValid() )
 		{
-			if ( $i_request->isValid() )
+			$resource = $this->_prepareResource($i_request);
+
+			if ( $resource !== null )
 			{
-				$resource = $this->_prepareResource($i_request);
-
-				if ( $resource !== null )
-				{
-					$response = $resource->execute();
-				}
-				else
-				{
-					$response->setResponseCode(Prest_Response::NOT_FOUND);
-				}
-
+				$response = $resource->execute();
 			}
-		}
-		catch ( Exception $e )
-		{
-			$response->setResponseCode(Prest_Response::SERVER_ERROR);
-			$response->clearHeaders();
-
-			$message = $e->getMessage();
-
-			if ( $message )
-				$response->setBody($message);
 			else
-				$response->clearBody();
+			{
+				$response->setResponseCode(Prest_Response::NOT_FOUND);
+			}
 		}
 
 		return $response;
@@ -73,7 +62,8 @@ class Prest_Dispatcher
 			(
 				'service' => $this->_service,
 				'request' => $i_request,
-				'directory' => $directory,
+				'directory' => $resource_dir,
+				'action_type' => $matched_route['type'],
 				'action' => $matched_route['type'] . ucfirst($i_request->getMethod())
 			);
 

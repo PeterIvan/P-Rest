@@ -1,6 +1,6 @@
 <?php
 
-class Prest_Http_Request_Headers
+class Prest_Request_Headers
 {
 	protected $_all_headers = null;
 
@@ -39,6 +39,23 @@ class Prest_Http_Request_Headers
 		}
 
 		return $this->_all_headers;
+	}
+
+	public function get( $i_header )
+	{
+		$method = 'get' . ucfirst($i_header);
+
+		if ( method_exists($this, $method) )
+			return $this->$method();
+		else
+		{
+			$all_headers = $this->getAllHeaders();
+
+			if ( isset($all_headers[$i_header]) )
+				return $all_headers[$i_header];
+			else
+				return null;
+		}
 	}
 
 	public function getAccept()
