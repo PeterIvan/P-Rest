@@ -7,8 +7,7 @@ class Prest_Resource
 
 	protected $_directory = null;
 	protected $_action = null;
-
-	protected $_response = null;
+	protected $_action_type = null;
 
 	protected $_params = null;
 
@@ -71,6 +70,8 @@ class Prest_Resource
 	############################################################################
 
 	public function getMediaTypes() { return $this->_media_types; }
+	public function getActionType() { return$this->_action_type; }
+
 
 	############################################################################
 	# representation ###########################################################
@@ -80,6 +81,8 @@ class Prest_Resource
 		$response = null;
 
 		$action = $i_action ? $i_action : $this->_action;
+
+		$this->_setupRepresentation();
 
 		$this->$action();
 
@@ -96,7 +99,6 @@ class Prest_Resource
 	protected function _setup()
 	{
 		$this->_setupMediaTypes();
-		//$this->_setupRepresentation();
 	}
 
 	protected function _setupMediaTypes()
@@ -129,14 +131,14 @@ class Prest_Resource
 
 	protected function _setupRepresentation()
 	{
-		$params = array
+		$representation_params = array
 		(
 			'service' => $this->_service,
 			'request' => $this->_request,
-			'resource' => $this
+			'resource' => $this,
 		);
 
-		$this->_representation = new Prest_Representation($params);
+		$this->_representation = new Prest_Representation($representation_params);
 	}
 
 	############################################################################
@@ -210,77 +212,6 @@ class Prest_Resource
 	protected function _authorize()
 	{
 		return true;
-	}
-
-	############################################################################
-
-	protected function _selectBestMediaType()
-	{
-		if ( !$this->_media_types )
-			die('No media types are supported by this resource.');
-
-		$requested = $this->_request->getHeaders()->getAccept();
-		$default = $this->_service->getDefaultMediaType();
-
-		$selected_media_type = null;
-
-		foreach ( $this->_media_types as $media_type )
-		{
-			if ( in_array($media_type, $requested) )
-			{
-				$selected_media_type = $media_type;
-				break;
-			}
-		}
-
-		if ( !$selected_media_type )
-		{
-			echo 'media type not selected.';// TODO:
-		}
-
-		return $selected_media_type;
-	}
-
-	protected function _selectBestLanguage()
-	{
-		$supported = $this->_service->getSupportedLanguages();
-		$requested = $this->_request->getHeaders()->getAcceptLanguage();
-		$default = $this->_service->getDefaultLanguage();
-
-		$selected_language = null;
-
-		foreach ( $supported as $language )
-		{
-			if ( in_array($language, $requested) )
-			{
-				$selected_language = $language;
-				break;
-			}
-		}
-
-		if ( !$selected_language )
-		{
-			// TODO:
-		}
-
-		return $selected_language;
-	}
-
-	protected function _selectRepresentationTemplate( $i_media_type )
-	{
-		$selected_template = null;
-		$route = $this->_service->getRouter()->getMatchedRoute();
-
-		if ( $i_media_type )
-		{
-			$file_name = str_replace('/', '_', $i_media_type) . '.phtml';
-			$template = "{$this->_directory}/representations/{$route['type']}/$file_name";
-
-			if ( is_file($template) )
-				$selected_template = $template;
-		}
-
-		return $selected_template;
 	}
 }
 

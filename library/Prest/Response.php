@@ -21,6 +21,14 @@ class Prest_Response
 # public
 ################################################################################
 
+	public function __construct( Prest_Representation $i_representation = null )
+	{
+		if ( $i_representation )
+			$this->_representation = $i_representation;
+
+		$this->_setup();
+	}
+
 	############################################################################
 	# headers ##################################################################
 
@@ -112,6 +120,19 @@ class Prest_Response
 ################################################################################
 # protected
 ################################################################################
+
+	protected function _setup()
+	{
+		if ( $this->_representation )
+		{
+			$representation_headers = $this->_representation->getHeaders();
+			
+			if ( $representation_headers )
+				$this->setHeaders($representation_headers);
+			
+			$this->_body = $this->_representation;
+		}
+	}
 
 	protected function _normalizeName( $i_header )
 	{

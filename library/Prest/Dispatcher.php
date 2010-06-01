@@ -21,7 +21,7 @@ class Prest_Dispatcher
 		{
 			$resource = $this->_prepareResource($i_request);
 
-			return $resource->execute();
+			return $resource->getRepresentation();
 		}
 	}
 

@@ -11,6 +11,7 @@ class Prest_Representation
 	protected $_template = null;
 
 	protected $_is_file = false;
+	protected $_file = true;
 
 ################################################################################
 # public
@@ -69,6 +70,8 @@ class Prest_Representation
 		return $this;
 	}
 
+	public function getHeaders() { return $this->_headers; }
+
 ################################################################################
 
 	public function getMediaType() { return $this->_media_type; }
@@ -91,9 +94,7 @@ class Prest_Representation
 		{
 			ob_start();
 
-			$template = $this->_selectTemplate();
-
-			require_once($template);
+			require_once($this->_template);
 
 			$buffer = ob_get_contents();
 
@@ -111,8 +112,9 @@ class Prest_Representation
 
 	protected function _setup()
 	{
-		$this->_media_type = $this->_selectMediaType();
-		$this->_language = $this->_selectLanguage();
+		$this->_selectMediaType();
+		$this->_selectLanguage();
+		$this->_selectTemplate();
 	}
 
 	protected function _selectMediaType()
@@ -120,7 +122,7 @@ class Prest_Representation
 		$selected_media_type = null;
 
 		$available_media_types = $this->_resource->getMediaTypes();
-		$requested_media_types = $this->_resource->getHeader('Accept');
+		$requested_media_types = $this->_request->getHeaders()->getAccept();
 
 		// TODO: weighted selection
 
@@ -134,7 +136,7 @@ class Prest_Representation
 			}
 		}
 
-		return $selected_media_type;
+		$this->_media_type = $selected_media_type;
 	}
 
 	protected function _selectLanguage()
@@ -156,7 +158,19 @@ class Prest_Representation
 			}
 		}
 
-		return $selected_language;
+		$this->_language = $selected_language;
+	}
+
+	protected function _selectTemplate()
+	{
+		$selected_template = null;
+		$route_type = $this->_resource->getActionType();
+
+		$file_name = str_replace('/', '_', $this->_media_type) . '.phtml';
+		$template = "{$this->_resource->getDirectory()}/representations/$route_type/$file_name";
+
+		if ( is_file($template) )
+			$this->_template = $template;
 	}
 
 	protected function _normalizeHeaderName( $i_header )

@@ -168,6 +168,14 @@ class Prest_Request_Http_Url
        return $this->_base_url;
 	}
 
+	public function getFullBasePath()
+	{
+		$host = $this->getHost();
+		$base_url = $this->getBaseUrl();
+
+		
+	}
+
 	public function getBasePath()
 	{
 		// nicked from Zend Framework (http://framework.zend.com/), Zend_Controller_Request_Http class
