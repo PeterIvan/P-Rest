@@ -72,20 +72,18 @@ class Prest_Resource
 
 	public function getMediaTypes() { return $this->_media_types; }
 
-	public function getRepresentation() { return $this->_representation; }
-
 	############################################################################
-	# execution ################################################################
+	# representation ###########################################################
 
-	public function execute( $i_action = null )
+	public function getRepresentation( $i_action = null )
 	{
 		$response = null;
 
 		$action = $i_action ? $i_action : $this->_action;
 
-		$response = $this->$action();
-				
-		return $response;
+		$this->$action();
+
+		return $this->_representation;
 	}
 
 ################################################################################
@@ -183,7 +181,7 @@ class Prest_Resource
 			elseif ( in_array($requested_mt, $this->_media_types) )
 			{
 				$is_media_type_supported = true;
-				
+
 				break;
 			}
 		}
@@ -200,7 +198,7 @@ class Prest_Resource
 
 		foreach ( $requested_languages as $requested_l )
 		{
-			
+
 		}
 	}
 

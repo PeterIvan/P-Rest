@@ -122,7 +122,9 @@ class Prest_Service
 		{
 			$request = new Prest_Request(array('service' => $this));
 
-			$response = $this->_dispatcher->dispatch($request);
+			$representation = $this->_dispatcher->dispatch($request);
+
+			$response = new Prest_Response($representation);
 
 			$response->send();
 		}

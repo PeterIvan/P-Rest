@@ -15,6 +15,8 @@ class Prest_Response
 	protected $_response_code = 200;
 	protected $_body = null;
 
+	protected $_representation = null;
+
 ################################################################################
 # public
 ################################################################################

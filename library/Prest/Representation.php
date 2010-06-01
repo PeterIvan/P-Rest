@@ -5,6 +5,7 @@ class Prest_Representation
 	protected $_service = null;
 	protected $_resource = null;
 
+	protected $_headers = null;
 	protected $_media_type = null;
 	protected $_language = null;
 	protected $_template = null;
@@ -25,6 +26,48 @@ class Prest_Representation
 	}
 
 	public function __toString() { return $this->render(); }
+
+	############################################################################
+	# headers ##################################################################
+
+	public function setHeaders( array $i_headers )
+	{
+		foreach ( $i_headers as $header )
+		{
+			$replace = isset($header['replace']) ? $header['replace'] : false;
+
+			$this->addHeader($header['name'], $header['value'], $replace);
+		}
+
+		return $this;
+	}
+
+	public function addHeader( $i_header_name, $i_value, $i_replace = false )
+	{
+		$header_name = $this->_normalizeHeaderName($i_header_name);
+
+		if ( $i_replace )
+		{
+			foreach ( $this->_headers as $i => $header )
+			{
+				if ( $header['name'] == $header_name )
+				{
+					unset($this->_headers[$i]);
+
+					break;
+				}
+			}
+		}
+
+		$this->_headers[] = array
+		(
+			'name' => $header_name,
+			'value' => $i_value,
+			'replace' => $i_replace
+		);
+
+		return $this;
+	}
 
 ################################################################################
 
@@ -116,7 +159,14 @@ class Prest_Representation
 		return $selected_language;
 	}
 
-	//protected function
+	protected function _normalizeHeaderName( $i_header )
+	{
+		$filtered = str_replace(array('-', '_'), ' ', (string)$i_header);
+		$filtered = ucwords(strtolower($filtered));
+		$filtered = str_replace(' ', '-', $filtered);
+
+		return $filtered;
+	}
 }
 
 ?>
