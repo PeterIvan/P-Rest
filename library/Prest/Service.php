@@ -46,13 +46,6 @@ class Prest_Service
 		return null;
 	}
 
-	public function getBaseUrl()
-	{
-		$request_url = $this->_request->getUrl();
-
-		return $request_url->getScheme() . '://' . $request_url->getHost() . $request_url->getBasePath();;
-	}
-
 	public function getRouter()
 	{
 		return $this->_router;
@@ -68,19 +61,8 @@ class Prest_Service
 		return $this->_dispatcher;
 	}
 
-	public function getRequest() { return $this->_request; }
-	public function getResponse() { return $this->_response; }
-
 	public function getAuthAdapter() { return $this->_auth_adapter; }
 	public function getAuthChallengeGenerator() { return $this->_auth_challenge_generator; }
-
-	public function getDefaultMediaType()
-	{
-		if ( isset($this->_config['default_media_type']) and !empty($this->_config['default_media_type']) )
-			return $this->_config['default_media_type'];
-
-		return null;
-	}
 
 	public function getDefaultLanguage()
 	{
@@ -155,6 +137,14 @@ class Prest_Service
 
 			$response->send();
 		}
+	}
+
+	public function makeRequest( Prest_Request $i_request )
+	{
+		var_dump('make');
+		$representation = $this->_dispatcher->dispatch($i_request);
+
+		var_dump($representation);
 	}
 
 	public function getResourceDirectory( $i_resource_name )

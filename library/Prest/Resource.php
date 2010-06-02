@@ -14,6 +14,8 @@ class Prest_Resource
 	protected $_media_types = null;
 	protected $_representation = null;
 
+	protected $_default_media_type = null;
+
 ################################################################################
 # public
 ################################################################################
@@ -70,6 +72,7 @@ class Prest_Resource
 	############################################################################
 
 	public function getMediaTypes() { return $this->_media_types; }
+	public function getDefaultMediaType() { return $this->_default_media_type; }
 	public function getActionType() { return$this->_action_type; }
 
 
@@ -165,7 +168,7 @@ class Prest_Resource
 
 		foreach ( $requested_media_types as $requested_mt )
 		{
-			if ( strpos($requested_mt, '*') !== 'false' )
+			if ( $this->_default_media_type and strpos($requested_mt, '*') !== 'false' )
 			{
 				$pattern = str_replace('*', '.*', $requested_mt);
 				$pattern = str_replace('/', '\/', $pattern);

@@ -5,6 +5,8 @@ class Prest_Request_Http_Url
 	const SCHEME_HTTP = 'http';
 	const SCHEME_HTTPS = 'https';
 
+	protected $_raw_url = null;
+
 	protected $_scheme = null;
 	protected $_host = null;
 	protected $_request_uri = null;
@@ -12,33 +14,22 @@ class Prest_Request_Http_Url
 	protected $_base_path = null;
 	protected $_path_info = null;
 
-	public function __construct() {}
+################################################################################
+# public
+################################################################################
 
-	public function getScheme()
+	public function __construct( $i_url = null )
 	{
-		// nicked from Zend Framework (http://framework.zend.com/), Zend_Controller_Request_Http class
-
-		return ((isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on') ? self::SCHEME_HTTPS : self::SCHEME_HTTP);
+		if ( $i_url )
+			$this->_raw_url = $i_url;
+		
+		$this->_setup();
 	}
 
-	public function getHost()
-	{
-		// nicked from Zend Framework (http://framework.zend.com/), Zend_Controller_Request_Http class
+################################################################################
 
-		$host = $_SERVER['HTTP_HOST'];
-
-		if ( !empty($host) )
-			return $host;
-
-		$scheme = $this->getScheme();
-		$name = $_SERVER['SERVER_NAME'];
-		$port = $_SERVER['SERVER_PORT'];
-
-		if ( ($scheme == self::SCHEME_HTTP && $port == 80) or ($scheme == self::SCHEME_HTTPS && $port == 443) )
-			return $name;
-		else
-			return $name . ':' . $port;
-	}
+	public function getScheme()	{ return $this->_scheme; }
+	public function getHost() { return $this->_host; }
 
 	public function getRequestUri()
 	{
@@ -173,7 +164,7 @@ class Prest_Request_Http_Url
 		$host = $this->getHost();
 		$base_url = $this->getBaseUrl();
 
-		
+		return $this->getScheme() . ':/' . $host . $base_url;
 	}
 
 	public function getBasePath()
@@ -229,6 +220,108 @@ class Prest_Request_Http_Url
 		}
 
 		return $this->_path_info;
+	}
+
+################################################################################
+# protected
+################################################################################
+
+	protected function _setup()
+	{
+		if ( $this->_raw_url )
+			var_dump(parse_url($this->_raw_url));
+			//$this->_parseUrl();
+
+		$this->_setupScheme();
+	}
+
+	protected function _setupScheme()
+	{
+		if ( $this->_raw_url )
+		{
+			if ( strpos($this->_raw_url, self::SCHEME_HTTPS) !== false )
+				$this->_scheme = self::SCHEME_HTTPS;
+			else
+				$this->_scheme = self::SCHEME_HTTP;
+		}
+		else
+		{
+			// nicked from Zend Framework (http://framework.zend.com/),
+			// Zend_Controller_Request_Http class
+
+			$this->_scheme = (isset($_SERVER['HTTPS']) and $_SERVER['HTTPS'] == 'on')
+				? self::SCHEME_HTTPS : self::SCHEME_HTTP;
+		}
+	}
+
+	protected function _setupHost()
+	{
+		if ( $this->_raw_url )
+		{
+
+		}
+		else
+		{
+			// nicked from Zend Framework (http://framework.zend.com/),
+			// Zend_Controller_Request_Http class
+
+			$host = $_SERVER['HTTP_HOST'];
+
+			if ( !empty($host) )
+				return $host;
+
+			$scheme = $this->getScheme();
+			$name = $_SERVER['SERVER_NAME'];
+			$port = $_SERVER['SERVER_PORT'];
+
+			if ( ($scheme == self::SCHEME_HTTP && $port == 80) or ($scheme == self::SCHEME_HTTPS && $port == 443) )
+				$this->_host = $name;
+			else
+				$this->_host = $name . ':' . $port;
+		}
+	}
+
+	protected function _parseUrl()
+	{
+		// High-level decomposition parser
+        $pattern = '~^((//)([^/?#]*))([^?#]*)(\?([^#]*))?(#(.*))?$~';
+        $status  = @preg_match($pattern, $this->_raw_url, $matches);
+        if ($status === false) {
+            require_once 'Zend/Uri/Exception.php';
+            throw new Zend_Uri_Exception('Internal error: scheme-specific decomposition failed');
+        }
+
+        // Failed decomposition; no further processing needed
+        if ($status === false) {
+            return;
+        }
+
+        // Save URI components that need no further decomposition
+        $path     = isset($matches[4]) === true ? $matches[4] : '';
+        $query    = isset($matches[6]) === true ? $matches[6] : '';
+        $fragment = isset($matches[8]) === true ? $matches[8] : '';
+
+		var_dump($path, $query, $fragment);exit;
+
+        // Additional decomposition to get username, password, host, and port
+        $combo   = isset($matches[3]) === true ? $matches[3] : '';
+        $pattern = '~^(([^:@]*)(:([^@]*))?@)?([^:]+)(:(.*))?$~';
+        $status  = @preg_match($pattern, $combo, $matches);
+        if ($status === false) {
+            require_once 'Zend/Uri/Exception.php';
+            throw new Zend_Uri_Exception('Internal error: authority decomposition failed');
+        }
+
+        // Failed decomposition; no further processing needed
+        if ($status === false) {
+            return;
+        }
+
+        // Save remaining URI components
+        $this->_username = isset($matches[2]) === true ? $matches[2] : '';
+        $this->_password = isset($matches[4]) === true ? $matches[4] : '';
+        $this->_host     = isset($matches[5]) === true ? $matches[5] : '';
+        $this->_port     = isset($matches[7]) === true ? $matches[7] : '';
 	}
 }
 

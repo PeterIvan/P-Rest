@@ -16,7 +16,7 @@ class Prest_Dispatcher
 	}
 
 	public function dispatch( Prest_Request $i_request, array $i_params = null )
-	{
+	{var_dump('ddd');
 		if ( $i_request->isValid() )
 		{
 			$resource = $this->_prepareResource($i_request);

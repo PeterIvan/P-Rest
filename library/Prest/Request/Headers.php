@@ -19,8 +19,8 @@ class Prest_Request_Headers
 		{
 			$headers = array();
 
-			if ( function_exists('getallheaders') )
-				$headers = getallheaders();
+			//if ( function_exists('getallheaders') )
+			//	$headers = getallheaders();
 
 			if ( empty($headers) )
 			{
