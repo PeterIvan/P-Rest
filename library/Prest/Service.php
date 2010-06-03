@@ -141,7 +141,6 @@ class Prest_Service
 
 	public function makeRequest( Prest_Request $i_request )
 	{
-		var_dump('make');
 		$representation = $this->_dispatcher->dispatch($i_request);
 
 		var_dump($representation);

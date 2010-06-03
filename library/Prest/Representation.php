@@ -10,6 +10,8 @@ class Prest_Representation
 	protected $_language = null;
 	protected $_template = null;
 
+	protected $_has_template = true;
+
 	protected $_is_file = false;
 	protected $_file = true;
 
@@ -86,24 +88,38 @@ class Prest_Representation
 		return $this;
 	}
 
+	public function setHasTemplate( $i_bool )
+	{
+		$this->_has_template = (bool)$i_bool;
+
+		return $this;
+	}
+
 ################################################################################
 
 	public function render()
 	{
 		if ( !$this->_is_file )
 		{
-			ob_start();
+			if ( $this->_has_template )
+			{
+				ob_start();
 
-			require_once($this->_template);
+				require_once($this->_template);
 
-			$buffer = ob_get_contents();
+				$buffer = ob_get_contents();
 
-			ob_end_clean();
+				ob_end_clean();
 
-			return $buffer;
+				return $buffer;
+			}
 		}
 		else
-			return '';
+		{
+			readfile($this->_file);
+		}
+
+		return '';
 	}
 
 ################################################################################

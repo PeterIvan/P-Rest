@@ -157,7 +157,7 @@ class Prest_Resource
 	protected function _checkAction()
 	{
 		if ( !method_exists($this, $this->_action) )
-			throw new Prest_Exception(null, Prest_Response::NOT_FOUND);
+			throw new Prest_Exception(null, Prest_Response::METHOD_NOT_ALLOWED);
 	}
 
 	protected function _checkMediaType()
@@ -205,6 +205,16 @@ class Prest_Resource
 		{
 
 		}
+	}
+
+	protected function _checkAuthentication()
+	{
+		$auth_result = $this->_authenticate();
+	}
+
+	protected function _checkAuthorization()
+	{
+		$auth_result = $this->_authorize();
 	}
 
 	protected function _authenticate()
