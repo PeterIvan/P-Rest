@@ -5,8 +5,11 @@ class Prest_Response
 	const OK = 200;
 
 	const CLIENT_ERROR = 400;
+	const AUTHORIZATION_REQUIRED = 401;
+	const FORBIDDEN = 403;
 	const NOT_FOUND = 404;
 	const METHOD_NOT_ALLOWED = 405;
+	const NOT_ACCEPTABLE = 406;
 	const UNSUPPORTED_MEDIA_TYPE = 415;
 
 	const SERVER_ERROR = 500;

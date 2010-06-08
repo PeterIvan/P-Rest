@@ -143,7 +143,7 @@ class Prest_Service
 	{
 		$representation = $this->_dispatcher->dispatch($i_request);
 
-		var_dump($representation);
+		return $representation;
 	}
 
 	public function getResourceDirectory( $i_resource_name )
@@ -164,7 +164,7 @@ class Prest_Service
 		return $directory;
 	}
 
-	public function authenticate()
+	/*public function authenticate()
 	{
 		if ( $this->_auth_adapter )
 		{
@@ -188,7 +188,7 @@ class Prest_Service
 			die('auth adapter not defined.'); //TODO: throw
 
 		return $this;
-	}
+	}*/
 
 ################################################################################
 # protected
@@ -196,12 +196,8 @@ class Prest_Service
 
 	protected function _setup()
 	{
-		//$this->_url = new Prest_Service_Url();
-
 		$this->_router = $this->_setupRouter();
 		$this->_dispatcher = $this->_setupDispatcher();
-
-		$this->_response = new Prest_Http_Response( array('service' => $this) );
 	}
 
 	protected function _setupRouter()
@@ -218,7 +214,7 @@ class Prest_Service
 		return new Prest_Dispatcher($dispatcher_params);
 	}
 
-	protected function _prepareDispatch()
+	/*protected function _prepareDispatch()
 	{
 		$this->_setupResource();
 		$this->_setupAction();
@@ -228,9 +224,9 @@ class Prest_Service
 	{
 		$matched_route = $this->_router->getMatchedRoute();
 		$resource = $matched_route['resource'];
-	}
+	}*/
 
-	protected function _setupAction()
+	/*protected function _setupAction()
 	{
 		$matched_route = $this->_router->getMatchedRoute();
 		$request_method = $this->_request->getMethod();
@@ -248,7 +244,7 @@ class Prest_Service
 		//$resource_validator = new
 
 		return (bool)$this->_resource->validate($this->_action);
-	}
+	}*/
 
 }
 ?>

@@ -55,7 +55,8 @@ class Prest_Dispatcher
 				'request' => $i_request,
 				'directory' => $resource_dir,
 				'action_type' => $matched_route['type'],
-				'action' => $matched_route['type'] . ucfirst($i_request->getMethod())
+				'action' => $matched_route['type'] . ucfirst($i_request->getMethod()),
+				'route_params' => $matched_route['params']
 			);
 
 			$resource = new $class($config);

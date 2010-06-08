@@ -5,7 +5,7 @@ class Prest_Representation
 	protected $_service = null;
 	protected $_resource = null;
 
-	protected $_headers = null;
+	protected $_headers = array();
 	protected $_media_type = null;
 	protected $_language = null;
 	protected $_template = null;
