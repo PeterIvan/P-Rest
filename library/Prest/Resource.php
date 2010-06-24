@@ -16,12 +16,20 @@ class Prest_Resource
 
 	protected $_default_media_type = null;
 
+	protected $_action_config = null;
+
 ################################################################################
 # public
 ################################################################################
 
 	public function __construct( array $i_params )
 	{
+		$this->_action_config = array_merge
+		(
+			Prest_Resource_Action_Config::getInstance()->getDefaultConfig(),
+			$this->_action_config
+		);
+
 		# set properties #######################################################
 
 		$this->_service = $i_params['service'];
@@ -173,17 +181,20 @@ class Prest_Resource
 
 		if ( $this->_request->isPost() or $this->_request->isPut() or $this->_request->isDelete() )
 		{
-			$is_input_media_type_supported = false;
-
-			$input_media_type = $this->_request->getHeaders()->getContentType();
-
-			if ( in_array($input_media_type['media_type'], $this->_media_types) )
+			if ( $this->_action_config[$this->_action][Prest_Resource_Action_Config::ACCEPT_CONTENT] )
 			{
-				$is_input_media_type_supported = true;
-			}
+				$is_input_media_type_supported = false;
 
-			if ( !$is_input_media_type_supported )
-				throw new Prest_Exception(null, Prest_Response::UNSUPPORTED_MEDIA_TYPE);
+				$input_media_type = $this->_request->getHeaders()->getContentType();
+
+				if ( in_array($input_media_type['media_type'], $this->_media_types) )
+				{
+					$is_input_media_type_supported = true;
+				}
+
+				if ( !$is_input_media_type_supported )
+					throw new Prest_Exception(null, Prest_Response::UNSUPPORTED_MEDIA_TYPE);
+			}
 		}
 
 		########################################################################
