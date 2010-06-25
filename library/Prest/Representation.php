@@ -131,6 +131,9 @@ class Prest_Representation
 		$this->_selectMediaType();
 		$this->_selectLanguage();
 		$this->_selectTemplate();
+
+		$this->addHeader('Content-Type', $this->_media_type . '; charset=UTF-8');
+		$this->addHeader('Content-Language', $this->_language);
 	}
 
 	protected function _selectMediaType()
