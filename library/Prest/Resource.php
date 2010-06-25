@@ -16,7 +16,7 @@ class Prest_Resource
 
 	protected $_default_media_type = null;
 
-	protected $_action_config = null;
+	protected $_action_config = array();
 
 ################################################################################
 # public
@@ -26,7 +26,7 @@ class Prest_Resource
 	{
 		$this->_action_config = array_merge
 		(
-			Prest_Resource_Action_Config::getInstance()->getDefaultConfig(),
+			Prest_Resource_ActionConfig::getInstance()->getDefaultConfig(),
 			$this->_action_config
 		);
 
@@ -113,34 +113,63 @@ class Prest_Resource
 	protected function _setup()
 	{
 		$this->_setupMediaTypes();
+		$this->_setupDefaultMediaType();
 	}
 
 	protected function _setupMediaTypes()
 	{
-		$directory = "{$this->_directory}/representations/{$this->_action_type}";
+		$a = $this->_action;
+		$smt_opt = Prest_Resource_ActionConfig::SUPPORTED_MEDIA_TYPES;
 
-		if ( is_dir($directory) )
+		if ( isset(	$this->_action_config[$a], $this->_action_config[$a][$smt_opt])
+			 and
+			 is_array($this->_action_config[$a][$smt_opt])
+			 and
+			 !empty($this->_action_config[$a][$smt_opt])
+		   )
 		{
-			$media_types = array();
-			$d = new DirectoryIterator($directory);
-
-			foreach ( $d as $item )
-			{
-				if ( $item->isDot() )
-					continue;
-
-				$file_name = $item->getFilename();
-
-				if ( $item->isFile() and strpos($file_name, '.phtml') !== false )
-				{
-					$media_type = str_replace('_', '/', substr($file_name, 0, -6));
-
-					$media_types[] = $media_type;
-				}
-			}
-
-			$this->_media_types = $media_types;
+			$this->_media_types = $this->_action_config[$a][$smt_opt];
 		}
+		else
+		{
+			$directory = "{$this->_directory}/representations/{$this->_action_type}";
+
+			if ( is_dir($directory) )
+			{
+				$media_types = array();
+				$d = new DirectoryIterator($directory);
+
+				foreach ( $d as $item )
+				{
+					if ( $item->isDot() )
+						continue;
+
+					$file_name = $item->getFilename();
+
+					if ( $item->isFile() and strpos($file_name, '.phtml') !== false )
+					{
+						$media_type = str_replace('_', '/', substr($file_name, 0, -6));
+
+						$media_types[] = $media_type;
+					}
+				}
+
+				$this->_media_types = $media_types;
+			}
+		}
+	}
+
+	protected function _setupDefaultMediaType()
+	{
+		$a = $this->_action;
+		$opt = Prest_Resource_ActionConfig::DEFAULT_MEDIA_TYPE;
+
+		$service_default_mt = $this->_default_media_type;
+
+		if ( isset($this->_action_config[$a], $this->_action_config[$a][$opt]) )
+			$this->_default_media_type = $this->_action_config[$a][$opt];
+		elseif ( $service_default_mt )
+			$this->_default_media_type = $service_default_mt;
 	}
 
 	protected function _setupRepresentation()
@@ -206,7 +235,7 @@ class Prest_Resource
 
 		foreach ( $output_media_types as $output_mt )
 		{
-			if ( $this->_default_media_type and strpos($output_mt, '*') !== 'false' )
+			if ( $this->_default_media_type and strpos($output_mt, '*') !== false )
 			{
 				$pattern = str_replace('*', '.*', $output_mt);
 				$pattern = str_replace('/', '\/', $pattern);
@@ -216,7 +245,7 @@ class Prest_Resource
 				{
 					if ( preg_match($pattern, $supported_mt) === 1 )
 					{
-						$is_media_type_supported = true;
+						$is_output_media_type_supported = true;
 						break 2;
 					}
 				}
@@ -238,7 +267,7 @@ class Prest_Resource
 	{
 		// TODO: support input output languages
 
-		$is_language_supported = false;
+		/*$is_language_supported = false;
 
 		$requested_languages = $this->_request->getHeaders()->getAcceptLanguage();
 		$supported_languages = $this->_service->getSupportedLanguages();
@@ -250,7 +279,7 @@ class Prest_Resource
 		}
 
 		if ( !$is_language_supported )
-			throw new Prest_Exception(null, Prest_Response::NOT_ACCEPTABLE);
+			throw new Prest_Exception(null, Prest_Response::NOT_ACCEPTABLE);*/
 		// TODO: generate response body
 	}
 

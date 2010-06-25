@@ -77,7 +77,7 @@ class Prest_Router
 						'type' => $route_type,
 						'params' => $params
 					);
-
+					
 					break 2;
 				}
 			}

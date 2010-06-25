@@ -61,9 +61,6 @@ class Prest_Service
 		return $this->_dispatcher;
 	}
 
-	public function getAuthAdapter() { return $this->_auth_adapter; }
-	public function getAuthChallengeGenerator() { return $this->_auth_challenge_generator; }
-
 	public function getDefaultLanguage()
 	{
 		if ( isset($this->_config['default_language']) and !empty($this->_config['default_language']) )
@@ -73,6 +70,14 @@ class Prest_Service
 	}
 
 	public function getSupportedLanguages() { return $this->_supported_languages; }
+
+	public function getDefaultMediaType()
+	{
+		if ( isset($this->_config['default_media_type']) and !empty($this->_config['default_media_type']) )
+			return $this->_config['default_media_type'];
+
+		return null;
+	}
 
 	public function addResourceDirectory( $i_directory )
 	{

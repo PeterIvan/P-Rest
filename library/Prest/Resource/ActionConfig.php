@@ -1,8 +1,12 @@
 <?php
 
-class Prest_Resource_Action_Config
+class Prest_Resource_ActionConfig
 {
 	const ACCEPT_CONTENT = 'accept_content';
+	const SUPPORTED_MEDIA_TYPES = 'supported_media_types';
+	const DEFAULT_MEDIA_TYPE = 'default_media_type';
+
+	const REQUIRED_INPUT_HEADERS = 'required_input_headers';
 	
 	private static $_instance;
 	

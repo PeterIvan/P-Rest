@@ -88,6 +88,11 @@ class Prest_Representation
 		return $this;
 	}
 
+	public function setFile( $i_file )
+	{
+		$this->_file = $i_file;
+	}
+
 	public function setHasTemplate( $i_bool )
 	{
 		$this->_has_template = (bool)$i_bool;
@@ -116,7 +121,8 @@ class Prest_Representation
 		}
 		else
 		{
-			readfile($this->_file);
+			if ( is_file($this->_file) )
+				readfile($this->_file);
 		}
 
 		return '';
@@ -132,7 +138,7 @@ class Prest_Representation
 		$this->_selectLanguage();
 		$this->_selectTemplate();
 
-		$this->addHeader('Content-Type', $this->_media_type . '; charset=UTF-8');
+		$this->addHeader('Content-Type', $this->_media_type);
 		$this->addHeader('Content-Language', $this->_language);
 	}
 
@@ -156,6 +162,9 @@ class Prest_Representation
 		}
 
 		$this->_media_type = $selected_media_type;
+
+		if ( empty($this->_media_type) )
+			$this->_media_type = $this->_resource->getDefaultMediaType();
 	}
 
 	protected function _selectLanguage()
