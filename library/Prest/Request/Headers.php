@@ -9,6 +9,7 @@ class Prest_Request_Headers
 	protected $_accept_language = array();
 
 	protected $_content_type = array();
+	protected $_content_language = array();
 
 	protected $_authorization = null;
 
@@ -161,11 +162,39 @@ class Prest_Request_Headers
 					}
 				}
 
-				$this->_content_type = array('media_type' => $media_type, 'params' => $params);
+				$this->_content_type = array('media_range' => $media_type, 'params' => $params);
 			}
 		}
 
 		return $this->_content_type;
+	}
+
+	public function getContentLanguage()
+	{
+		if ( empty($this->_content_language) )
+		{
+			$all_headers = $this->getAllheaders();
+
+			if ( isset($all_headers['Content-Language']) )
+			{
+				$cl = $all_headers['Content-Language'];
+
+				if ( strpos($cl, ',') !== false )
+				{
+					$languages = explode(',', $cl);
+					$trimmed_languages = array();
+
+					foreach ( $languages as $lang )
+						$trimmed_languages[] = trim($lang);
+
+					$this->_content_language = $trimmed_languages;
+				}
+				else
+					$this->_content_language = trim($cl);
+			}
+		}
+
+		return $this->_content_language;
 	}
 
 	############################################################################

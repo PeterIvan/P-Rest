@@ -210,13 +210,13 @@ class Prest_Resource
 
 		if ( $this->_request->isPost() or $this->_request->isPut() or $this->_request->isDelete() )
 		{
-			if ( $this->_action_config[$this->_action][Prest_Resource_Action_Config::ACCEPT_CONTENT] )
+			if ( $this->_action_config[$this->_action][Prest_Resource_ActionConfig::ACCEPT_CONTENT] )
 			{
 				$is_input_media_type_supported = false;
 
 				$input_media_type = $this->_request->getHeaders()->getContentType();
 
-				if ( in_array($input_media_type['media_type'], $this->_media_types) )
+				if ( in_array($input_media_type['media_range'], $this->_media_types) )
 				{
 					$is_input_media_type_supported = true;
 				}
