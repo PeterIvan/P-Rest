@@ -38,6 +38,9 @@ class Prest_Request_Headers
 						$headers[$k] = $v;
 					}
 				}
+
+				if ( isset($_SERVER['CONTENT_TYPE']) )
+					$headers['Content-Type'] = $_SERVER['CONTENT_TYPE'];
 			}
 
 			$this->_all_headers = $headers;

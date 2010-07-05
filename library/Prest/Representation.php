@@ -164,7 +164,7 @@ class Prest_Representation
 		$this->_media_type = $selected_media_type;
 
 		if ( empty($this->_media_type) )
-			$this->_media_type = $this->_resource->getDefaultMediaType();
+			$this->_media_type = $this->_resource->getDefaultOutputMediaType();
 	}
 
 	protected function _selectLanguage()

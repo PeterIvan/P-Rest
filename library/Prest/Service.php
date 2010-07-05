@@ -12,9 +12,10 @@ class Prest_Service
 
 	protected $_dispatcher = null;
 
-	protected $_auth_adapter = null;
-	protected $_auth_challenge_generator = null;
 	protected $_supported_languages = array();
+
+	protected $_default_output_media_type = 'application/json';
+	protected $_default_language = null;
 
 ################################################################################
 # public
@@ -25,9 +26,19 @@ class Prest_Service
 		if ( $i_config )
 			$this->_config = $i_config;
 
+		########################################################################
+
 		if ( isset($i_config['supported_languages']) and !empty($i_config['supported_languages']) )
 			$this->_supported_languages = (array)$i_config['supported_languages'];
 
+		if ( isset($i_config['default_output_media_type']) and !empty($i_config['default_output_media_type']) )
+			$this->_default_output_media_type = $i_config['default_output_media_type'];
+
+		if ( isset($i_config['default_language']) and !empty($i_config['default_language']) )
+			$this->_default_language = $i_config['default_language'];
+
+		########################################################################
+		
 		$this->_setup();
 	}
 
@@ -61,44 +72,16 @@ class Prest_Service
 		return $this->_dispatcher;
 	}
 
-	public function getDefaultLanguage()
-	{
-		if ( isset($this->_config['default_language']) and !empty($this->_config['default_language']) )
-			return $this->_config['default_language'];
-
-		return null;
-	}
-
 	public function getSupportedLanguages() { return $this->_supported_languages; }
-
-	public function getDefaultMediaType()
-	{
-		if ( isset($this->_config['default_media_type']) and !empty($this->_config['default_media_type']) )
-			return $this->_config['default_media_type'];
-
-		return null;
-	}
-
+	public function getDefaultOutputMediaType() { return $this->_default_output_media_type; }
+	public function getDefaultLanguage() { return $this->_default_language; }
+	
 	public function addResourceDirectory( $i_directory )
 	{
 		$resolved_directory = realpath($i_directory);
 
 		if ( $resolved_directory and !in_array($resolved_directory, $this->_resource_directories) )
 			$this->_resource_directories[] = $resolved_directory;
-	}
-
-	public function setAuthAdapter( Zend_Auth_Adapter_Interface $i_adapter )
-	{
-		$this->_auth_adapter = $i_adapter;
-
-		return $this;
-	}
-
-	public function setAuthChallengeGenerator( Prest_Auth_ChallengeGenerator_Interface $i_generator )
-	{
-		$this->_auth_challenge_generator = $i_generator;
-
-		return $this;
 	}
 
 	public function dispatch()
