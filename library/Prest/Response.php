@@ -3,6 +3,10 @@
 class Prest_Response
 {
 	const OK = 200;
+	const CREATED = 201;
+	const NO_CONTENT = 204;
+
+	const MOVED_PERMANANTLY = 301;
 
 	const CLIENT_ERROR = 400;
 	const AUTHORIZATION_REQUIRED = 401;
@@ -13,6 +17,7 @@ class Prest_Response
 	const UNSUPPORTED_MEDIA_TYPE = 415;
 
 	const SERVER_ERROR = 500;
+	const NOT_IMPLEMENTED = 501;
 
 	protected $_headers = array();
 	protected $_response_code = 200;
@@ -128,8 +133,12 @@ class Prest_Response
 	{
 		if ( $this->_representation )
 		{
+			$representation_response_code = $this->_representation->getResponseCode();
 			$representation_headers = $this->_representation->getHeaders();
-			
+
+			if ( $representation_response_code )
+				$this->setResponseCode($representation_response_code);
+
 			if ( $representation_headers )
 				$this->setHeaders($representation_headers);
 			

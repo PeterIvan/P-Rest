@@ -5,6 +5,7 @@ class Prest_Representation
 	protected $_service = null;
 	protected $_resource = null;
 
+	protected $_response_code = null;
 	protected $_headers = array();
 	protected $_media_type = null;
 	protected $_language = null;
@@ -32,6 +33,15 @@ class Prest_Representation
 
 	############################################################################
 	# headers ##################################################################
+
+	public function setResponseCode( $i_code )
+	{
+		$this->_response_code = $i_code;
+
+		return $this;
+	}
+
+	public function getResponseCode() { return $this->_response_code; }
 
 	public function setHeaders( array $i_headers )
 	{
@@ -134,12 +144,17 @@ class Prest_Representation
 
 	protected function _setup()
 	{
-		$this->_selectMediaType();
-		$this->_selectLanguage();
-		$this->_selectTemplate();
+		$available_media_types = $this->_resource->getMediaTypes();
 
-		$this->addHeader('Content-Type', $this->_media_type);
-		$this->addHeader('Content-Language', $this->_language);
+		if ( !empty($available_media_types) )
+		{
+			$this->_selectMediaType();
+			$this->_selectLanguage();
+			$this->_selectTemplate();
+
+			$this->addHeader('Content-Type', $this->_media_type);
+			$this->addHeader('Content-Language', $this->_language);
+		}
 	}
 
 	protected function _selectMediaType()

@@ -233,7 +233,7 @@ class Prest_Resource
 
 		$this->_selectOutputMediaType();
 
-		$this->_checkMediaType();
+		//$this->_checkMediaType();
 		$this->_checkLanguage();
 
 
