@@ -193,7 +193,7 @@ class Prest_Request_Headers
 					$this->_content_language = $trimmed_languages;
 				}
 				else
-					$this->_content_language = trim($cl);
+					$this->_content_language = (array)trim($cl);
 			}
 		}
 

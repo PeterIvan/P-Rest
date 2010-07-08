@@ -77,7 +77,10 @@ class Prest_Router
 						'type' => $route_type,
 						'params' => $params
 					);
-					
+
+					if ( isset($this->_routes[$route_index]['class']) )
+						$matched_route['class'] = $this->_routes[$route_index]['class'];
+
 					break 2;
 				}
 			}

@@ -42,8 +42,8 @@ class Prest_Dispatcher
 
 		$resource_dir = $this->_service->getResourceDirectory($resource_name);
 
-		$class = basename($resource_name);
-		$file = "$resource_dir/$class.php";
+		$file_name = basename($resource_name);
+		$file = "$resource_dir/$file_name.php";
 
 		if ( is_dir($resource_dir) and is_file($file) )
 		{
@@ -58,6 +58,11 @@ class Prest_Dispatcher
 				'action' => $matched_route['type'] . ucfirst($i_request->getMethod()),
 				'route_params' => $matched_route['params']
 			);
+
+			if ( isset($matched_route['class']) )
+				$class = $matched_route['class'];
+			else
+				$class = $file_name;
 
 			$resource = new $class($config);
 

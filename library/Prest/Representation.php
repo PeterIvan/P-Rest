@@ -116,7 +116,7 @@ class Prest_Representation
 	{
 		if ( !$this->_is_file )
 		{
-			if ( $this->_has_template )
+			if ( $this->_has_template and is_file($this->_template) )
 			{
 				ob_start();
 
