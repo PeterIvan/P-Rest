@@ -24,7 +24,12 @@ class Prest_Request_Headers
 			$headers = array();
 
 			if ( function_exists('getallheaders') )
-				$headers = getallheaders();
+			{
+				$raw_headers = getallheaders();
+
+				foreach ( $raw_headers as $k => $v )
+					$headers[strtolower($k)] = $v;
+			}
 
 			if ( empty($headers) )
 			{
@@ -33,14 +38,14 @@ class Prest_Request_Headers
 					if ( substr($k, 0, 5) == 'HTTP_' )
 					{
 						$k = str_replace('_', ' ', substr($k, 5));
-						$k = str_replace(' ', '-', ucwords(strtolower($k)));
+						$k = str_replace(' ', '-', strtolower($k));
 
 						$headers[$k] = $v;
 					}
 				}
 
 				if ( isset($_SERVER['CONTENT_TYPE']) )
-					$headers['Content-Type'] = $_SERVER['CONTENT_TYPE'];
+					$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
 			}
 
 			$this->_all_headers = $headers;
@@ -59,8 +64,10 @@ class Prest_Request_Headers
 		{
 			$all_headers = $this->getAllHeaders();
 
-			if ( isset($all_headers[$i_header]) )
-				return $all_headers[$i_header];
+			$header = strtolower($i_header);
+
+			if ( isset($all_headers[$header]) )
+				return $all_headers[$header];
 			else
 				return null;
 		}
@@ -76,11 +83,11 @@ class Prest_Request_Headers
 			$all_headers = $this->getAllheaders();
 			$accept = array();
 
-			if ( isset($all_headers['Accept']) )
+			if ( isset($all_headers['accept']) )
 			{
 				// TODO: reformat according http spec, sorting by quality etc
 
-				$accept_exploded = explode(',', $all_headers['Accept']);
+				$accept_exploded = explode(',', $all_headers['accept']);
 
 				foreach ( $accept_exploded as $i => $v )
 				{
@@ -104,11 +111,11 @@ class Prest_Request_Headers
 			$all_headers = $this->getAllheaders();
 			$accept_language = array();
 
-			if ( isset($all_headers['Accept-Language']) )
+			if ( isset($all_headers['accept-language']) )
 			{
 				// TODO: reformat according http spec, sorting by quality etc
 
-				$accept_language__exploded = explode(',', $all_headers['Accept-Language']);
+				$accept_language__exploded = explode(',', $all_headers['accept-language']);
 
 				foreach ( $accept_language__exploded as $i => $v )
 				{
@@ -136,9 +143,9 @@ class Prest_Request_Headers
 		{
 			$all_headers = $this->getAllheaders();
 
-			if ( isset($all_headers['Content-Type']) )
+			if ( isset($all_headers['content-type']) )
 			{
-				$ct = $all_headers['Content-Type'];
+				$ct = $all_headers['content-type'];
 
 				$params = array();
 				$media_type = $ct;
@@ -159,7 +166,7 @@ class Prest_Request_Headers
 						foreach ( $param_list as $raw_param )
 						{
 							list($p_name, $p_value) = explode('=', $raw_param);
-							
+
 							$params[$p_name] = $p_value;
 						}
 					}
@@ -178,9 +185,9 @@ class Prest_Request_Headers
 		{
 			$all_headers = $this->getAllheaders();
 
-			if ( isset($all_headers['Content-Language']) )
+			if ( isset($all_headers['content-language']) )
 			{
-				$cl = $all_headers['Content-Language'];
+				$cl = $all_headers['content-language'];
 
 				if ( strpos($cl, ',') !== false )
 				{
@@ -208,8 +215,8 @@ class Prest_Request_Headers
 		{
 			$all_headers = $this->getAllheaders();
 
-			if ( isset($all_headers['Authorization']) )
-				$this->_authorization = $all_headers['Authorization'];
+			if ( isset($all_headers['authorization']) )
+				$this->_authorization = $all_headers['authorization'];
 		}
 
 		return $this->_authorization;
