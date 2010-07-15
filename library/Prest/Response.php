@@ -14,6 +14,9 @@ class Prest_Response
 	const NOT_FOUND = 404;
 	const METHOD_NOT_ALLOWED = 405;
 	const NOT_ACCEPTABLE = 406;
+	const CONFLICT = 409;
+	const GONE = 410;
+	const REQUEST_ENTITY_TOO_LARGE = 413;
 	const UNSUPPORTED_MEDIA_TYPE = 415;
 
 	const SERVER_ERROR = 500;
