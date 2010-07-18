@@ -141,6 +141,7 @@ class Prest_Resource
 
 		$this->_setupDefaultOutputMediaType();
 		$this->_setupOutputMediaTypes();
+		$this->_setupInputMediaTypes();
 	}
 
 	protected function _setupDefaultOutputMediaType()
@@ -199,6 +200,10 @@ class Prest_Resource
 		}
 	}
 
+	protected function _setupInputMediaTypes()
+	{
+	}
+
 	protected function _setupRepresentation()
 	{
 		$representation_params = array
@@ -211,15 +216,35 @@ class Prest_Resource
 		$this->_representation = new Prest_Representation($representation_params);
 	}
 
-	############################################################################
-	# validation ###############################################################
+################################################################################
+# Validation ###################################################################
 
 	protected function _validate()
 	{
-		$this->_checkAction();
+		#########################################################################
+		# check if method is supported ##########################################
 
-		$this->_checkAuthentication();
-		$this->_checkAuthorization();
+		if ( !method_exists($this, $this->_action) )
+			throw new Prest_Exception(null, Prest_Response::METHOD_NOT_ALLOWED);
+
+		#########################################################################
+		# check if identity exists ##############################################
+
+		if ( $this->_action_type == 'identity' )
+		{
+			$identity_check_method = "_identityExists";
+
+			if ( method_exists($this, $identity_check_method) )
+			{
+				if ( !$this->$identity_check_method() )
+					throw new Prest_Exception(null, Prest_Response::NOT_FOUND);
+			}
+			else
+				throw new Exception('All resources that supports identity must implement "_identityExists" method.');
+		}
+
+		#########################################################################
+		# call custom check method ##############################################
 
 		$check_method = "_check" . ucfirst($this->_action);
 
@@ -231,18 +256,42 @@ class Prest_Resource
 				throw new Prest_Exception(null, Prest_Response::CLIENT_ERROR);
 		}
 
+		#########################################################################
+		# call custom auth methods ##############################################
+
+		$this->_checkAuthentication();
+		$this->_checkAuthorization();
+
 		$this->_selectOutputMediaType();
 
 		//$this->_checkMediaType();
 		$this->_checkLanguage();
-
-
 	}
 
-	protected function _checkAction()
+	protected function _checkAuthentication()
 	{
-		if ( !method_exists($this, $this->_action) )
-			throw new Prest_Exception(null, Prest_Response::METHOD_NOT_ALLOWED);
+		$method = "_authenticate" . ucfirst($this->_action);
+
+		if ( method_exists($this, $method) )
+		{
+			$result = $this->$method();
+
+			if ( $result !== true )
+				throw new Prest_Exception(null, Prest_Response::FORBIDDEN);
+		}
+	}
+
+	protected function _checkAuthorization()
+	{
+		$method = "_authorize" . ucfirst($this->_action);
+
+		if ( method_exists($this, $method) )
+		{
+			$result = $this->$method();
+
+			if ( $result !== true )
+				throw new Prest_Exception(null, Prest_Response::FORBIDDEN);
+		}
 	}
 
 	protected function _selectOutputMediaType()
@@ -338,32 +387,6 @@ class Prest_Resource
 		if ( !$is_language_supported )
 			throw new Prest_Exception(null, Prest_Response::NOT_ACCEPTABLE);*/
 		// TODO: generate response body
-	}
-
-	protected function _checkAuthentication()
-	{
-		$method = "_authenticate" . ucfirst($this->_action);
-
-		if ( method_exists($this, $method) )
-		{
-			$result = $this->$method();
-
-			if ( $result !== true )
-				throw new Prest_Exception(null, Prest_Response::FORBIDDEN);
-		}
-	}
-
-	protected function _checkAuthorization()
-	{
-		$method = "_authorize" . ucfirst($this->_action);
-
-		if ( method_exists($this, $method) )
-		{
-			$result = $this->$method();
-
-			if ( $result !== true )
-				throw new Prest_Exception(null, Prest_Response::FORBIDDEN);
-		}
 	}
 }
 
