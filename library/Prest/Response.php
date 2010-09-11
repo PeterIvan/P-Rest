@@ -8,7 +8,7 @@ class Prest_Response
 
 	const MOVED_PERMANANTLY = 301;
 
-	const CLIENT_ERROR = 400;
+	const BAD_REQUEST = 400;
 	const AUTHORIZATION_REQUIRED = 401;
 	const FORBIDDEN = 403;
 	const NOT_FOUND = 404;

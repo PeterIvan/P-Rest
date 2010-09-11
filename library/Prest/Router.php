@@ -105,9 +105,14 @@ class Prest_Router
 
 			if ( $param_pos !== false  ) // if route contains params
 			{
+
+
 				do
 				{
-					$param_name = substr($route_pattern, $param_pos + 1, (strpos($route_pattern, '/', $param_pos) - 1) - $param_pos);
+					if ( strpos($route_pattern, '/', $param_pos) !== false )
+						$param_name = substr($route_pattern, $param_pos + 1, (strpos($route_pattern, '/', $param_pos) - 1) - $param_pos);
+					else
+						$param_name = substr($route_pattern, $param_pos + 1);
 
 					if ( isset($route['params'], $route['params'][$param_name]) )
 					{
@@ -115,7 +120,7 @@ class Prest_Router
 						$map_entry['params'][] = $param_name;
 					}
 					else
-						die("param $param_name is not defined"); // TODO: throw
+						die("param '$param_name' is not defined"); // TODO: throw
 
 					$param_pos = strpos($route_pattern, ':');
 				}

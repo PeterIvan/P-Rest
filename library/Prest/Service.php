@@ -17,6 +17,8 @@ class Prest_Service
 	protected $_default_output_media_type = 'application/json';
 	protected $_default_language = null;
 
+	protected $_transaction_started = false;
+
 ################################################################################
 # public
 ################################################################################
@@ -152,31 +154,10 @@ class Prest_Service
 		return $directory;
 	}
 
-	/*public function authenticate()
+	public function transactionStarted()
 	{
-		if ( $this->_auth_adapter )
-		{
-			$auth = Zend_Auth::getInstance();
-
-			$auth_result = $auth->authenticate($this->_auth_adapter);
-
-			if ( !$auth_result->isValid() )
-			{
-				if ( $this->_auth_challenge_generator )
-				{
-					$challenge = $this->_auth_challenge_generator->generate();
-
-					$this->_response->code401($challenge);
-				}
-				else
-					die('Auth challenge generator is not defined.');
-			}
-		}
-		else
-			die('auth adapter not defined.'); //TODO: throw
-
-		return $this;
-	}*/
+		return $this->_transaction_started;
+	}
 
 ################################################################################
 # protected
@@ -202,37 +183,7 @@ class Prest_Service
 		return new Prest_Dispatcher($dispatcher_params);
 	}
 
-	/*protected function _prepareDispatch()
-	{
-		$this->_setupResource();
-		$this->_setupAction();
-	}
-
-	protected function _setupResource()
-	{
-		$matched_route = $this->_router->getMatchedRoute();
-		$resource = $matched_route['resource'];
-	}*/
-
-	/*protected function _setupAction()
-	{
-		$matched_route = $this->_router->getMatchedRoute();
-		$request_method = $this->_request->getMethod();
-
-		$action = $matched_route['type'] . ucfirst($request_method);
-
-		if ( method_exists($this->_resource, $action) )
-			$this->_action = $action;
-		else
-			die("$action dont exists."); // TODO: better handling
-	}
-
-	protected function _validateRequest()
-	{
-		//$resource_validator = new
-
-		return (bool)$this->_resource->validate($this->_action);
-	}*/
+	
 
 }
 ?>
