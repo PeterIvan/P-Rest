@@ -78,7 +78,7 @@ class Prest_Resource
 	{
 		if ( !$this->_params )
 		{
-			$matched_route = $this->_service->getRouter()->getMatchedRoute();
+			$matched_route = $this->_service->getRouter()->getMatchedRoute($this->_request->getUrl());
 
 			$request_params = $this->_request->getParams();
 			$route_params = $matched_route['params'];
