@@ -7,6 +7,7 @@ class Prest_Response
 	const NO_CONTENT = 204;
 
 	const MOVED_PERMANANTLY = 301;
+	const SEE_OTHER = 303;
 
 	const BAD_REQUEST = 400;
 	const AUTHORIZATION_REQUIRED = 401;
@@ -144,7 +145,7 @@ class Prest_Response
 
 			if ( $representation_headers )
 				$this->setHeaders($representation_headers);
-			
+
 			$this->_body = $this->_representation;
 		}
 	}

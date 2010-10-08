@@ -51,6 +51,18 @@ class Prest_Request_Headers
 			$this->_all_headers = $headers;
 		}
 
+		if ( !isset($this->_all_headers['authorization']) or empty($this->_all_headers['authorization']) )
+		{
+			if ( isset($_COOKIE['Authorization']) )
+				$this->_all_headers['authorization'] = $_COOKIE['Authorization'];
+		}
+
+		if ( !isset($this->_all_headers['x-clientid']) or empty($this->_all_headers['x-clientid']) )
+		{
+			if ( isset($_COOKIE['X-ClientId']) )
+				$this->_all_headers['x-clientid'] = $_COOKIE['X-ClientId'];
+		}
+
 		return $this->_all_headers;
 	}
 
