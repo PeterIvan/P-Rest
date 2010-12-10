@@ -58,30 +58,50 @@ class Prest_Router
 				{
 					$params = array();
 
-					foreach ( $route_params as $i => $p )
-						$params[$p] = $matched_params[$i + 1][0];
+					if ( !empty($route_params) )
+					{
+						foreach ( $route_params as $i => $p )
+						{
+							$params[$p['name']] = array
+							(
+								'value' => $matched_params[$i + 1][0],
+								'class' => $p['class']
+							);
+						}
+					}
 
 					if ( $route_type == 'identity' )
 					{
 						$identity = end($matched_params);
 
 						if ( is_array($identity) )
-							$params['identity'] = $identity[0];
+							$params['identity']['value'] = $identity[0];
 						else
-							$params['identity'] = $identity;
+							$params['identity']['value'] = $identity;
 					}
 
-					$matched_route = array
+					$route = array
 					(
 						'resource' => $this->_routes[$route_index]['resource'],
 						'type' => $route_type,
-						'params' => $params
+						'params' => $params,
+						'priority' => isset($this->_routes[$route_index]['priority'])
+							? $this->_routes[$route_index]['priority'] : 0
 					);
 
 					if ( isset($this->_routes[$route_index]['class']) )
-						$matched_route['class'] = $this->_routes[$route_index]['class'];
+						$route['class'] = $this->_routes[$route_index]['class'];
 
-					break 2;
+					############################################################
+					# resolve duplicate routes by priority #####################
+
+					if ( !$matched_route )
+						$matched_route = $route;
+					else
+					{
+						if ( $matched_route['priority'] < $route['priority'] )
+							$matched_route = $route;
+					}
 				}
 			}
 		}
@@ -105,8 +125,6 @@ class Prest_Router
 
 			if ( $param_pos !== false  ) // if route contains params
 			{
-
-
 				do
 				{
 					if ( strpos($route_pattern, '/', $param_pos) !== false )
@@ -116,11 +134,29 @@ class Prest_Router
 
 					if ( isset($route['params'], $route['params'][$param_name]) )
 					{
-						$route_pattern = str_replace(':' . $param_name, '(' . $route['params'][$param_name] . ')', $route_pattern);
-						$map_entry['params'][] = $param_name;
+						$param_regex = null;
+						$param_class = null;
+
+						if ( is_array($route['params'][$param_name]) )
+						{
+							$param_regex = $route['params'][$param_name]['regex'];
+							
+							if ( isset($route['params'][$param_name]['class']) )
+								$param_class = $route['params'][$param_name]['class'];
+						}
+						else
+							$param_regex = $route['params'][$param_name];
+
+						$route_pattern = str_replace(":$param_name", "($param_regex)", $route_pattern);
+
+						$map_entry['params'][] = array
+						(
+							'name' => $param_name,
+							'class' => $param_class
+						);
 					}
 					else
-						die("param '$param_name' is not defined"); // TODO: throw
+						throw new Prest_Exception("Param '$param_name' is not defined in route {$route['route']}");
 
 					$param_pos = strpos($route_pattern, ':');
 				}
@@ -131,12 +167,13 @@ class Prest_Router
 
 			$map_entry['index']['pattern'] = $route_pattern;
 
-			# identity #########
+			####################################################################
+			# identity #########################################################
 
 			if ( isset($route['identity']) and $route['identity'] !== false )
 				$map_entry['identity']['pattern'] = $route_pattern . '\/(' . $route['identity'] . ')';
 
-			#################
+			####################################################################
 
 			$route_map[$route_index] = $map_entry;
 		}

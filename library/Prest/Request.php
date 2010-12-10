@@ -88,12 +88,12 @@ class Prest_Request
 	{
 		$params = array();
 
-		if ( $this->isGet() )
+		if ( isset($_GET) and !empty($_GET) )
 			$params += $_GET;
+
 		if ( $this->isPost() )
 			$params += $_POST;
 
-		// TODO: suport PUT/DELETE
 		// TODO: support custom passed params
 
 		return $params;

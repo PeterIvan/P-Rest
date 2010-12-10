@@ -51,8 +51,8 @@ class Prest_Resource
 		$this->_action_type = $i_params['action_type'];
 		$this->_action = $i_params['action'];
 
-		if ( isset($i_params['route_params']) )
-			$this->_params = $i_params['route_params'];
+		//if ( isset($i_params['route_params']) )
+		//	$this->_params = $i_params['route_params'];
 
 		$this->_setup();
 		$this->_validate();
@@ -60,8 +60,8 @@ class Prest_Resource
 
 	public function getDirectory() { return $this->_directory; }
 
-	############################################################################
-	# params ###################################################################
+################################################################################
+# Params #######################################################################
 
 	public function getParam( $i_param )
 	{
@@ -69,7 +69,25 @@ class Prest_Resource
 			$this->getParams();
 
 		if ( isset($this->_params[$i_param]) )
-			return $this->_params[$i_param];
+			return $this->_params[$i_param]['value'];
+
+		return null;
+	}
+
+	public function getParamInstance( $i_param )
+	{
+		if ( !$this->_params )
+			$this->getParams();
+
+		$param_value = $this->getParam($i_param);
+
+		if ( isset($this->_params[$i_param]['class']) )
+		{
+			if ( !isset($this->_params[$i_param]['instance']) )
+				$this->_params[$i_param]['instance'] = new $this->_params[$i_param]['class']($param_value);
+			
+			return $this->_params[$i_param]['instance'];
+		}
 
 		return null;
 	}
@@ -92,15 +110,15 @@ class Prest_Resource
 		return $this->_params;
 	}
 
-	############################################################################
+################################################################################
 
 	public function getMediaTypes() { return $this->_output_media_types; }
 	public function getDefaultOutputMediaType() { return $this->_default_output_media_type; }
 	public function getActionType() { return$this->_action_type; }
 
 
-	############################################################################
-	# representation ###########################################################
+################################################################################
+# Representation ###############################################################
 
 	public function getRepresentation( $i_action = null )
 	{
@@ -225,7 +243,20 @@ class Prest_Resource
 		# check if method is supported ##########################################
 
 		if ( !method_exists($this, $this->_action) )
+		{
 			throw new Prest_Exception(null, Prest_Response::METHOD_NOT_ALLOWED);
+		}
+
+		#########################################################################
+		# check path ############################################################
+
+		if ( method_exists($this, '_checkPath') )
+		{
+			$result = $this->_checkPath();
+
+			if ( !$result )
+				throw new Prest_Exception(null, Prest_Response::NOT_FOUND);
+		}
 
 		#########################################################################
 		# check if identity exists ##############################################
@@ -287,10 +318,23 @@ class Prest_Resource
 
 		if ( method_exists($this, $method) )
 		{
+			$success = false;
+			$message = 'Insufficient privileges.';
+
 			$result = $this->$method();
 
-			if ( $result !== true )
-				throw new Prest_Exception(null, Prest_Response::FORBIDDEN);
+			if ( is_array($result) )
+			{
+				if ( isset($result['success']) )
+					$success = $result['success'];
+				if ( isset($result['message']) )
+					$message = $result['message'];
+			}
+			else
+				$success = (bool)$result;
+
+			if ( $success !== true )
+				throw new Prest_Exception('Insufficient privileges.', Prest_Response::FORBIDDEN);
 		}
 	}
 
@@ -326,7 +370,7 @@ class Prest_Resource
 				{
 					$is_input_media_type_supported = true;
 				}
-//var_dump($is_input_media_type_supported);
+
 				if ( !$is_input_media_type_supported )
 					throw new Prest_Exception(null, Prest_Response::UNSUPPORTED_MEDIA_TYPE);
 			}
