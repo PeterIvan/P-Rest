@@ -19,6 +19,7 @@ class Prest_Resource
 
 	protected $_service = null;
 	protected $_request = null;
+	protected $_matched_route = null;
 
 	protected $_directory = null;
 	protected $_action = null;
@@ -33,7 +34,6 @@ class Prest_Resource
 
 	protected $_output_media_type = null;
 
-
 	protected $_action_config = array();
 
 ################################################################################
@@ -46,6 +46,8 @@ class Prest_Resource
 
 		$this->_service = $i_params['service'];
 		$this->_request = $i_params['request'];
+
+		$this->_matched_route = $i_params['matched_route'];
 
 		$this->_directory = $i_params['directory'];
 		$this->_action_type = $i_params['action_type'];

@@ -36,7 +36,7 @@ class Prest_Router
 		$path_info = $i_path_info;
 
 		$route_map = $this->_createRouteMap();
-
+print_r($route_map);
 		$matched_route = null;
 
 		foreach ( $route_map as $route_index => $routes )
@@ -89,6 +89,8 @@ class Prest_Router
 							? $this->_routes[$route_index]['priority'] : 0
 					);
 
+					if ( isset($this->_routes[$route_index]['name']) )
+						$route['name'] = $this->_routes[$route_index]['name'];
 					if ( isset($this->_routes[$route_index]['class']) )
 						$route['class'] = $this->_routes[$route_index]['class'];
 
@@ -105,6 +107,11 @@ class Prest_Router
 				}
 			}
 		}
+
+		########################################################################
+
+		if ( $matched_route )
+			$matched_route = new Prest_Router_MatchedRoute($matched_route);
 
 		return $matched_route;
 	}
@@ -171,7 +178,29 @@ class Prest_Router
 			# identity #########################################################
 
 			if ( isset($route['identity']) and $route['identity'] !== false )
-				$map_entry['identity']['pattern'] = $route_pattern . '\/(' . $route['identity'] . ')';
+			{
+				if ( is_array($route['identity']) )
+				{
+					$map_entry['identity']['pattern'] = $route_pattern . '\/(' . $route['identity']['regex'] . ')';
+					
+					if ( isset($route['identity']['class']) )
+					{
+						$class = array();
+						
+						if ( is_array($route['identity']['class']) )
+						{
+							 $class['name'] = $route['identity']['class']['name'];
+							 $class['params'] = $route['identity']['class']['params'];
+						}
+						else
+							 $class['name'] = $route['identity']['class'];
+						
+						$map_entry['identity']['class'] = $class;
+					}
+				}
+				else
+					$map_entry['identity']['pattern'] = $route_pattern . '\/(' . $route['identity'] . ')';
+			}
 
 			####################################################################
 
