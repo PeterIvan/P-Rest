@@ -60,7 +60,7 @@ class Prest_Dispatcher
 				'matched_route' => $matched_route
 			);
 
-			if ( isset($matched_route['class']) )
+			if ( $matched_route['class'] )
 				$class = $matched_route['class'];
 			else
 				$class = $file_name;

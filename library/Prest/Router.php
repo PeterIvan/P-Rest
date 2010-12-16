@@ -36,7 +36,7 @@ class Prest_Router
 		$path_info = $i_path_info;
 
 		$route_map = $this->_createRouteMap();
-print_r($route_map);
+
 		$matched_route = null;
 
 		foreach ( $route_map as $route_index => $routes )
@@ -147,7 +147,7 @@ print_r($route_map);
 						if ( is_array($route['params'][$param_name]) )
 						{
 							$param_regex = $route['params'][$param_name]['regex'];
-							
+
 							if ( isset($route['params'][$param_name]['class']) )
 								$param_class = $route['params'][$param_name]['class'];
 						}
@@ -182,11 +182,11 @@ print_r($route_map);
 				if ( is_array($route['identity']) )
 				{
 					$map_entry['identity']['pattern'] = $route_pattern . '\/(' . $route['identity']['regex'] . ')';
-					
+
 					if ( isset($route['identity']['class']) )
 					{
 						$class = array();
-						
+
 						if ( is_array($route['identity']['class']) )
 						{
 							 $class['name'] = $route['identity']['class']['name'];
@@ -194,7 +194,7 @@ print_r($route_map);
 						}
 						else
 							 $class['name'] = $route['identity']['class'];
-						
+
 						$map_entry['identity']['class'] = $class;
 					}
 				}

@@ -87,7 +87,7 @@ class Prest_Resource
 		{
 			if ( !isset($this->_params[$i_param]['instance']) )
 				$this->_params[$i_param]['instance'] = new $this->_params[$i_param]['class']($param_value);
-			
+
 			return $this->_params[$i_param]['instance'];
 		}
 
@@ -265,11 +265,9 @@ class Prest_Resource
 
 		if ( $this->_action_type == 'identity' )
 		{
-			$identity_check_method = "_identityExists";
-
-			if ( method_exists($this, $identity_check_method) )
+			if ( method_exists($this, '_identityExists') )
 			{
-				if ( !$this->$identity_check_method() )
+				if ( !$this->_identityExists() )
 					throw new Prest_Exception(null, Prest_Response::NOT_FOUND);
 			}
 			else

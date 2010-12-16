@@ -8,7 +8,7 @@ class Prest_Router_MatchedRoute implements ArrayAccess
 	protected $_priority = null;
 	protected $_resource = null;
 	protected $_type = null;
-	
+
 ################################################################################
 # public
 ################################################################################
@@ -48,7 +48,7 @@ class Prest_Router_MatchedRoute implements ArrayAccess
 
 	public function __isset( $i_name )
 	{
-		return $this->offsetExists($i_name);
+		return $this->offsetSet($i_name);
 	}
 
 	public function __unset( $i_name )
