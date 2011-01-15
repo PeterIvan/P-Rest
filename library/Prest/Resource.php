@@ -284,7 +284,12 @@ class Prest_Resource
 			$result = $this->$check_method();
 
 			if ( $result !== true )
+			{
+				if ( is_string($result) )
+					throw new Prest_Exception($result, Prest_Response::BAD_REQUEST);
+
 				throw new Prest_Exception(null, Prest_Response::BAD_REQUEST);
+			}
 		}
 
 		#########################################################################
