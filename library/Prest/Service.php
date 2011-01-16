@@ -17,7 +17,7 @@ class Prest_Service
 	protected $_default_output_media_type = 'application/json';
 	protected $_default_language = null;
 
-	protected $_transaction_started = false;
+	protected $_transaction = null;
 
 ################################################################################
 # public
@@ -88,6 +88,11 @@ class Prest_Service
 
 	public function dispatch()
 	{
+		if ( !$this->_transaction )
+			$this->_transaction = new Prest_Transaction();
+
+		$this->_transaction->begin();
+
 		$response = null;
 
 		try
@@ -98,10 +103,14 @@ class Prest_Service
 
 			$response = new Prest_Response($representation);
 
+			$this->_transaction->finish();
+
 			$response->send();
 		}
 		catch ( Prest_Exception $e )
 		{
+			$this->_transaction->rollBack();
+
 			$response = new Prest_Response();
 
 			$response->setResponseCode($e->getCode());
@@ -116,6 +125,8 @@ class Prest_Service
 		}
 		catch ( Exception $e )
 		{
+			$this->_transaction->rollBack();
+
 			$response = new Prest_Response();
 
 			$response->setResponseCode(Prest_Response::SERVER_ERROR);
@@ -154,9 +165,22 @@ class Prest_Service
 		return $directory;
 	}
 
+################################################################################
+# Transaction ##################################################################
+
+	public function setTransaction( Prest_Transaction $i_transaction )
+	{
+		$this->_transaction = $i_transaction;
+	}
+
+	public function getTransaction() { return $this->_transaction; }
+
 	public function transactionStarted()
 	{
-		return $this->_transaction_started;
+		if ( $this->_transaction )
+			return $this->_transaction->isStarted();
+		else
+			return false;
 	}
 
 ################################################################################
