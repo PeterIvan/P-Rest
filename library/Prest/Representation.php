@@ -110,6 +110,20 @@ class Prest_Representation
 		return $this;
 	}
 
+	public function setTemplate( $i_template )
+	{
+		$route_type = $this->_resource->getActionType();
+
+		$template = "{$this->_resource->getDirectory()}/representations/$route_type/{$i_template}.phtml";
+
+		if ( is_file($template) )
+			$this->_template = $template;
+	}
+
+	public function getTemplate( )
+	{
+		return	$this->_template;
+	}	
 ################################################################################
 
 	public function render()

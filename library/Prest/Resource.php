@@ -71,7 +71,12 @@ class Prest_Resource
 			$this->getParams();
 
 		if ( isset($this->_params[$i_param]) )
-			return $this->_params[$i_param]['value'];
+		{
+			if ( is_array($this->_params[$i_param]) )
+				return $this->_params[$i_param]['value'];
+			else
+				return $this->_params[$i_param];
+		}
 
 		return null;
 	}
@@ -133,6 +138,33 @@ class Prest_Resource
 		$this->$action();
 
 		return $this->_representation;
+	}
+
+	protected function createRange(array $i_input)
+	{
+		$range = $i_input;
+
+		$all_headers = $this->_request->getHeaders()->getAllHeaders();
+
+		if ( isset($all_headers['range']) )
+		{
+			$range = $all_headers['range'];
+
+			list($offset, $limit) = explode('-', str_replace('items=', '', $range));
+
+			$top = $limit - $offset;
+
+			$range = array_slice($i_input, $offset, $top + 1);
+
+			$total_item_count = (string)(count($i_input) - 1);
+
+			if ( $total_item_count < 0 )
+				$total_item_count = 0;
+
+			$this->_representation->addHeader('Content-Range', "items={$offset}-{$limit}/$total_item_count");
+		}
+
+		return $range;
 	}
 
 ################################################################################

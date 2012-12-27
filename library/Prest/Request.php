@@ -94,7 +94,11 @@ class Prest_Request
 		if ( $this->isPost() )
 			$params += $_POST;
 
-		// TODO: support custom passed params
+		if ( isset($this->_raw_params['params']) )
+		{
+			foreach ( $this->_raw_params['params'] as $param )
+				$params[$param['name']] = $param;
+		}
 
 		return $params;
 	}

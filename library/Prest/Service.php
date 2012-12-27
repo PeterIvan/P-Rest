@@ -40,7 +40,7 @@ class Prest_Service
 			$this->_default_language = $i_config['default_language'];
 
 		########################################################################
-		
+
 		$this->_setup();
 	}
 
@@ -77,7 +77,7 @@ class Prest_Service
 	public function getSupportedLanguages() { return $this->_supported_languages; }
 	public function getDefaultOutputMediaType() { return $this->_default_output_media_type; }
 	public function getDefaultLanguage() { return $this->_default_language; }
-	
+
 	public function addResourceDirectory( $i_directory )
 	{
 		$resolved_directory = realpath($i_directory);
@@ -91,25 +91,28 @@ class Prest_Service
 		if ( !$this->_transaction )
 			$this->_transaction = new Prest_Transaction();
 
-		$this->_transaction->begin();
-
 		$response = null;
 
 		try
 		{
 			$request = new Prest_Request(array('service' => $this));
 
+			if ( !$request->isGet() )
+				$this->_transaction->begin();
+
 			$representation = $this->_dispatcher->dispatch($request);
 
 			$response = new Prest_Response($representation);
 
-			$this->_transaction->finish();
+			if ( $this->_transaction->isStarted() )
+				$this->_transaction->finish();
 
 			$response->send();
 		}
 		catch ( Prest_Exception $e )
 		{
-			$this->_transaction->rollBack();
+			if ( $this->_transaction->isStarted() )
+				$this->_transaction->rollBack();
 
 			$response = new Prest_Response();
 
@@ -125,7 +128,8 @@ class Prest_Service
 		}
 		catch ( Exception $e )
 		{
-			$this->_transaction->rollBack();
+			if ( $this->_transaction->isStarted() )
+				$this->_transaction->rollBack();
 
 			$response = new Prest_Response();
 
@@ -142,6 +146,9 @@ class Prest_Service
 
 	public function makeRequest( Prest_Request $i_request )
 	{
+		if ( $this->_transaction->isStarted() )
+			$this->_transaction->finish();
+
 		$representation = $this->_dispatcher->dispatch($i_request);
 
 		return $representation;
@@ -207,7 +214,7 @@ class Prest_Service
 		return new Prest_Dispatcher($dispatcher_params);
 	}
 
-	
+
 
 }
 ?>

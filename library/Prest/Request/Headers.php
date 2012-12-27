@@ -13,8 +13,10 @@ class Prest_Request_Headers
 
 	protected $_authorization = null;
 
-	public function __construct()
+	public function __construct( array $i_all_headers = null )
 	{
+		if ( $i_all_headers )
+			$this->_all_headers = $i_all_headers;
 	}
 
 	public function getAllHeaders()

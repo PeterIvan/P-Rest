@@ -24,7 +24,7 @@ class Prest_Request_Http_Url
 	{
 		if ( $i_url )
 			$this->_raw_url = $i_url;
-		
+
 		$this->_setup();
 	}
 
@@ -196,7 +196,7 @@ class Prest_Request_Http_Url
 		if ( 0 === strpos($request_uri, $base_url) )
 		{
 			// full $base_url matches
-			
+
 			return $base_url;
 		}
 

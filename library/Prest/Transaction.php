@@ -3,6 +3,7 @@
 class Prest_Transaction
 {
 	protected $_is_started = false;
+	protected $_is_finished = false;
 
 ################################################################################
 # public
@@ -25,7 +26,12 @@ class Prest_Transaction
 
 	public function finish()
 	{
-		$this->commit();
+		if ( !$this->_is_finished )
+		{
+			$this->commit();
+
+			$this->_is_finished = true;
+		}
 	}
 }
 
