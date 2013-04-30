@@ -106,7 +106,7 @@ class Prest_Request_Http_Url
 			else
 				$host = $name . ':' . $port;
 		}
-var_dump($host);
+
 		return $host;
 	}
 
