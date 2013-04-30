@@ -85,7 +85,7 @@ class Prest_Request_Http_Url
 
 		if ( $this->_raw_url )
 		{
-			$host = $this->_parsed_raw_url['host'];
+			$host = "{$this->_parsed_raw_url['host']}:{$this->_parsed_raw_url['port']}";
 		}
 		else
 		{
@@ -106,7 +106,7 @@ class Prest_Request_Http_Url
 			else
 				$host = $name . ':' . $port;
 		}
-
+var_dump($host);
 		return $host;
 	}
 
