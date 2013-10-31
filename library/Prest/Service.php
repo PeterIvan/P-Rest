@@ -111,36 +111,11 @@ class Prest_Service
 		}
 		catch ( Prest_Exception $e )
 		{
-			if ( $this->_transaction->isStarted() )
-				$this->_transaction->rollBack();
-
-			$response = new Prest_Response();
-
-			$response->setResponseCode($e->getCode());
-			$response->setHeaders($e->getHeaders());
-
-			$message = $e->getMessage();
-
-			if ( !empty($message) )
-				$response->setBody($message);
-
-			$response->send();
+			$this->_handlePrestException($e);
 		}
 		catch ( Exception $e )
 		{
-			if ( $this->_transaction->isStarted() )
-				$this->_transaction->rollBack();
-
-			$response = new Prest_Response();
-
-			$response->setResponseCode(Prest_Response::SERVER_ERROR);
-
-			$message = $e->getMessage();
-
-			if ( $message )
-				$response->setBody($message);
-
-			$response->send();
+			$this->_handleErrorException($e);
 		}
 	}
 
@@ -214,7 +189,38 @@ class Prest_Service
 		return new Prest_Dispatcher($dispatcher_params);
 	}
 
+	protected function _handlePrestException(Prest_Exception $e)
+	{
+		if ( $this->_transaction->isStarted() )
+			$this->_transaction->rollBack();
 
+		$response = new Prest_Response();
 
+		$response->setResponseCode($e->getCode());
+		$response->setHeaders($e->getHeaders());
+
+		$message = $e->getMessage();
+
+		if ( !empty($message) )
+			$response->setBody($message);
+
+		$response->send();
+	}
+
+	protected function _handleErrorException(Exception $e)
+	{
+		if ( $this->_transaction->isStarted() )
+			$this->_transaction->rollBack();
+
+		$response = new Prest_Response();
+
+		$response->setResponseCode(Prest_Response::SERVER_ERROR);
+
+		$message = $e->getMessage();
+
+		if ( $message )
+			$response->setBody($message);
+
+		$response->send();
+	}
 }
-?>

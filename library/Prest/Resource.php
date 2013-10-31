@@ -62,6 +62,8 @@ class Prest_Resource
 
 	public function getDirectory() { return $this->_directory; }
 
+	public function getRequest() { return $this->_request; }
+
 ################################################################################
 # Params #######################################################################
 

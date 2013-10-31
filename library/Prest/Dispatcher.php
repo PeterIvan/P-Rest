@@ -2,6 +2,8 @@
 
 class Prest_Dispatcher
 {
+	public $current_resource = null;
+
 	protected $_service = null;
 	protected $_router = null;
 
@@ -19,7 +21,7 @@ class Prest_Dispatcher
 	{
 		if ( $i_request->isValid() )
 		{
-			$resource = $this->_prepareResource($i_request);
+			$resource = $this->current_resource = $this->_prepareResource($i_request);
 
 			return $resource->getRepresentation();
 		}
