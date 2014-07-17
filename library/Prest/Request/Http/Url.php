@@ -85,7 +85,9 @@ class Prest_Request_Http_Url
 
 		if ( $this->_raw_url )
 		{
-			$host = "{$this->_parsed_raw_url['host']}:{$this->_parsed_raw_url['port']}";
+			$port = isset($this->_parsed_raw_url['port']) ? $this->_parsed_raw_url['port'] : 80;
+
+			$host = "{$this->_parsed_raw_url['host']}:{$port}";
 		}
 		else
 		{
