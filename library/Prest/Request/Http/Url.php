@@ -34,7 +34,7 @@ class Prest_Request_Http_Url
 	public function getHost() { return $this->_host; }
 	public function getRequestUri()	{ return $this->_request_uri; }
 	public function getBaseUrl() { return $this->_base_url; }
-	public function getFullBaseUrl() { return $this->_full_base_url; }
+	public function getFullBaseUrl() { return $this->getBaseUrl(); }
 	public function getBasePath() { return $this->_base_path; }
 	public function getPathInfo() { return $this->_path_info; }
 
